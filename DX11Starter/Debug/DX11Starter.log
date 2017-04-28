@@ -1,5 +1,3 @@
-﻿  Game.cpp
-c:\users\varunjmhatre\desktop\ggp\milestone 3\flying figures\dx11starter\game.cpp(250): warning C4305: 'argument': truncation from 'double' to 'float'
-c:\users\varunjmhatre\desktop\ggp\milestone 3\flying figures\dx11starter\game.cpp(840): warning C4018: '<': signed/unsigned mismatch
-  DX11Starter.vcxproj -> C:\Users\varunjmhatre\Desktop\GGP\Milestone 3\Flying Figures\DX11Starter\Debug\DX11Starter.exe
-  DX11Starter.vcxproj -> C:\Users\varunjmhatre\Desktop\GGP\Milestone 3\Flying Figures\DX11Starter\Debug\DX11Starter.pdb (Full PDB)
+﻿  compilation object save succeeded; see F:\740 game graphics programming\milestone 4\00\Flying-Figures\DX11Starter\Debug\PixelShader.cso
+  DX11Starter.vcxproj -> F:\740 game graphics programming\milestone 4\00\Flying-Figures\DX11Starter\Debug\DX11Starter.exe
+  DX11Starter.vcxproj -> F:\740 game graphics programming\milestone 4\00\Flying-Figures\DX11Starter\Debug\DX11Starter.pdb (Full PDB)

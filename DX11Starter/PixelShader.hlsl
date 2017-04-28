@@ -92,7 +92,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 	}
 
 	
-	 float4 second_directional = directionallightcalculation(input.normal, directionalLight2);
+	// float4 second_directional = directionallightcalculation(input.normal, directionalLight2);
 	 
 	//directional light 
 	float lightAmountDL = saturate(dot(input.normal, normalize(-directionalLight2.Direction)));
@@ -125,8 +125,9 @@ float4 main(VertexToPixel input) : SV_TARGET
 	 float4 diffuseColor = Texture.Sample(Sampler, input.uv);
 
 
-	 float4 result = shadowAmount*diffuseColor;
-
+	// float4 result = shadowAmount*diffuseColor;
+	 //float4 result = shadowAmount*diffuseColor+ dlight ;
+	 float4 result =  dlight;
 	 return result;
 
 

@@ -128,10 +128,10 @@ void Game::Init()
 	CreateWICTextureFromFile(device, context, L"Assets/Textures/rockNormals.jpg", 0, &normalMapSRV);
 	//CreateWICTextureFromFile(device, context, L"Assets/Texture/shadow_cube.png",0,&SRV_Shadow);
 	// --------------------
-	score = 20;
-	swprintf_s(showScore, L"%d", score);
+	score = 0;
+	/*swprintf_s(showScore, L"%d", score);
 
-	scoreText[0] = new UI(device, context, showScore, XMFLOAT4(+0.0f, +0.0f, +110.0f, 110.0f));
+	scoreText[0] = new UI(device, context, showScore, XMFLOAT4(+0.0f, +0.0f, +110.0f, 110.0f));*/
 
 	startText[0] = new UI(device, context, L"FLYING FIGURES", XMFLOAT4(+200.0f, +100.0f, +110.0f, 110.0f));
 	startText[1] = new UI(device, context, L"Press enter to play", XMFLOAT4(+200.0f, +150.0f, +110.0f, 110.0f));
@@ -259,6 +259,8 @@ void Game::Init()
 	pointLight.CameraPos = cpos;
 	// for test: cout << pointLight.CameraPos.x << pointLight.CameraPos.y << pointLight.CameraPos.z << endl;
 	*/
+
+	level = 0;
 	
 }
 
@@ -705,60 +707,6 @@ void Game::Draw(float deltaTime, float totalTime)
 			pixelShader->CopyAllBufferData();
 			pixelShader->SetShader();
 
-
-			// ---------------reset for "normal" rendering----------------------
-			// reset the depth buffer
-			//context->OMSetDepthStencilState(0, 0);
-
-			// reset the viewport
-			//D3D11_VIEWPORT viewport = {};
-			//viewport.TopLeftX = 0;
-			//viewport.TopLeftY = 0;
-			//viewport.Width = (float)width;
-			//viewport.Height = (float)height;
-			//viewport.MinDepth = 0.0f;
-			//viewport.MaxDepth = 1.0f;
-			//context->RSSetViewports(1, &viewport);
-
-			// reset the rasterizer state
-			// context->RSSetState(0);
-			// ---------------reset for "normal" rendering----------------------
-
-
-				/*
-
-			// --------------------------------------------------------------------------
-			pixelShader->SetData(
-				"directionalLight", // the name of the (eventual) variable in the shader
-				&directionalLight,  // the address of the data to copy
-				sizeof(DirectionalLight)  // the size of the data to copy
-			);
-
-			pixelShader->SetData(
-				"directionalLight2",
-				&directionalLight2,
-				sizeof(DirectionalLight)
-			);
-
-			XMFLOAT3 camerapos;
-			XMStoreFloat3(&camerapos, c->GetCameraPosition());
-			//pixelShader->SetFloat3("cameraPosition", camerapos);
-
-			pixelShader->SetFloat3("PointLightPosition", XMFLOAT3(0, 2, 0));
-			pixelShader->SetFloat4("PointLightColor", XMFLOAT4(1, 0.1f, 0.1f, 1));  // red
-			pixelShader->SetFloat3("CameraPosition", camerapos);
-			*/
-			/*
-			pixelShader->SetData(
-				"pointLight",
-				&pointLight,
-				sizeof(PointLight));
-			*/
-
-
-
-
-
 			context->DrawIndexed(
 				E[i]->GetMesh()->GetIndexCount(),     // The number of indices to use (we could draw a subset if we wanted)
 				0,     // Offset to the first index we want to use
@@ -770,6 +718,41 @@ void Game::Draw(float deltaTime, float totalTime)
 		context->RSSetState(0);
 		context->OMSetDepthStencilState(0, 0);
 		pixelShader->SetShaderResourceView("ShadowMap", 0);
+
+		swprintf_s(showScore, L"%d", score);
+
+		scoreText[0] = new UI(device, context, showScore, XMFLOAT4(+0.0f, +0.0f, +110.0f, 110.0f));
+		scoreText[0]->getSpriteBatch()->Begin();
+		//scoreText->getSpriteBatch()->Draw(fontSRV, scoreText->getRECT());
+		scoreText[0]->getSpriteFont()->DrawString(
+			scoreText[0]->getSpriteBatch(),
+			showScore,
+			XMFLOAT2(10, 120));
+
+		scoreText[0]->getSpriteBatch()->End();
+		//fontSRV->Release();
+
+
+		//unique_ptr<SpriteBatch> spriteBatch(new SpriteBatch(context));
+		//unique_ptr<SpriteFont> spriteFont(new SpriteFont(device, L"myfile.spritefont"));
+
+		//int Intscore = 23;
+		//wchar_t score[256];
+		//	swprintf_s(score, L"%d", Intscore);
+		//spriteBatch->Begin();
+		//spriteFont->DrawString(spriteBatch.get(), score, XMFLOAT2(10, 10));
+		//spriteBatch->End();
+
+
+
+		context->RSSetState(0);
+		context->OMSetDepthStencilState(0, 0);
+		float factors[4] = { 1,1,1,1 };
+		context->OMSetBlendState(0, factors, 0xFFFFFFFF);
+
+
+
+
 
 
 		// Present the back buffer to the user
@@ -853,6 +836,7 @@ void Game::OnMouseDown(WPARAM buttonState, int x, int y)
 	{
 		//nearestEntity->SetTrans(XMFLOAT3(20.0f,0.0f,0.0f));
 		printf("\n%s",nearestEntity->GetName().c_str());
+		score++;
 	}
 	// Save the previous mouse position, so we have it for the future
 	prevMousePos.x = x;
