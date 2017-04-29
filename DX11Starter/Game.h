@@ -91,7 +91,7 @@ private:
 	//Material * ma_concrete;
 
 	// Create a field of DirectionalLight (no pointer)
-	//DirectionalLight directionalLight;
+	DirectionalLight directionalLight;
 	DirectionalLight directionalLight2;
 	//PointLight pointLight;
 
@@ -132,5 +132,9 @@ private:
 	UI * startText[2];
 
 	int level;
+
+	Physics *pp[12];
+
+	XMVECTOR dir;
 };
 

@@ -1,3 +1,7 @@
-﻿  compilation object save succeeded; see F:\740 game graphics programming\milestone 4\00\Flying-Figures\DX11Starter\Debug\PixelShader.cso
-  DX11Starter.vcxproj -> F:\740 game graphics programming\milestone 4\00\Flying-Figures\DX11Starter\Debug\DX11Starter.exe
-  DX11Starter.vcxproj -> F:\740 game graphics programming\milestone 4\00\Flying-Figures\DX11Starter\Debug\DX11Starter.pdb (Full PDB)
+﻿  Game.cpp
+f:\740 game graphics programming\milestone 4\01\flying-figures\dx11starter\game.cpp(247): warning C4305: 'argument': truncation from 'double' to 'float'
+f:\740 game graphics programming\milestone 4\01\flying-figures\dx11starter\game.cpp(252): warning C4305: 'argument': truncation from 'double' to 'float'
+f:\740 game graphics programming\milestone 4\01\flying-figures\dx11starter\game.cpp(505): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+f:\740 game graphics programming\milestone 4\01\flying-figures\dx11starter\game.cpp(886): warning C4018: '<': signed/unsigned mismatch
+  DX11Starter.vcxproj -> F:\740 game graphics programming\milestone 4\01\flying-figures\DX11Starter\Debug\DX11Starter.exe
+  DX11Starter.vcxproj -> F:\740 game graphics programming\milestone 4\01\flying-figures\DX11Starter\Debug\DX11Starter.pdb (Full PDB)

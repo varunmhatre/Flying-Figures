@@ -30,6 +30,8 @@ private:
 	ID3D11Buffer * ibuffer;
 	int num_index; // how many indices are in the mesh's index buffer
 	void CreateBuffers(Vertex * v, int num_v, unsigned int * i, int num_i, ID3D11Device * d);
+	void CalculateTangents(Vertex* verts, int numVerts, unsigned int* indices, int numIndices);
+
 
 	BoundingOrientedBox obb;
 	std::vector<Vertex> verts;

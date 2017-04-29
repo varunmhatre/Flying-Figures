@@ -2,12 +2,13 @@
 #include <DirectXMath.h>
 #include "Mesh.h"
 #include "Material.h"
+#include "Physics.h"
 using namespace DirectX;
 
 class Entity
 {
 public:
-	Entity(Mesh* m, std::string s); // accept Mesh pointer and set default values
+	Entity(Mesh* m, std::string s, Physics *); // accept Mesh pointer and set default values
 	~Entity();
 	XMFLOAT4X4 GetMatrix();   // get world matrix
 	void SetMatrix();         // set world matrix
@@ -33,6 +34,7 @@ public:
 
 	//void PrepareMaterial(XMFLOAT4X4 viewmatrix, XMFLOAT4X4 projectionmatrix);
 
+	Physics *phy;
 
 private:
 

@@ -22,7 +22,6 @@ class UI
 	wchar_t * fontContent;
 
 public:
-	UI();
 	UI(ID3D11Device*, ID3D11DeviceContext*, ID3D11ShaderResourceView*, XMFLOAT4);
 	UI(ID3D11Device*, ID3D11DeviceContext*, wchar_t *, XMFLOAT4);
 	~UI();

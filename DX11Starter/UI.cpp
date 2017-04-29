@@ -1,11 +1,5 @@
 #include "UI.h"
 
-
-
-UI::UI()
-{
-}
-
 UI::UI(ID3D11Device* device, ID3D11DeviceContext* context, ID3D11ShaderResourceView* textureSrv, XMFLOAT4 textureRect) {
 	spriteBatch = new SpriteBatch(context);
 	batchTextureSrv = textureSrv;
@@ -21,8 +15,11 @@ UI::UI(ID3D11Device* device , ID3D11DeviceContext* context , wchar_t * fontc, XM
 
 UI::~UI()
 {
-	spriteBatch->~SpriteBatch();
-	spriteFont->~SpriteFont();
+	if(spriteBatch)
+		delete spriteBatch;
+	
+	if(spriteFont)
+		delete spriteFont;
 }
 
 SpriteBatch* UI::getSpriteBatch() {

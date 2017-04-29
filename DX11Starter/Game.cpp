@@ -64,8 +64,10 @@ Game::~Game()
 	delete sphere;
 	delete torus;
 	delete plane;
-	for (int i = 0; i < 12; i++)
+	for (int i = 0; i < 12; i++) {
+		delete pp[i];
 		delete E[i];
+	}
 	//delete Entity_obj;
 	delete c;
 	//delete ma_metal;
@@ -97,7 +99,7 @@ Game::~Game()
 	delete scoreText[0];
 	delete startText[0];
 	delete startText[1];
-
+	
 }
 
 // --------------------------------------------------------
@@ -124,14 +126,14 @@ void Game::Init()
 	CreateWICTextureFromFile(device, context, L"Assets/Textures/Tile.jpg",0, &SRV_Metal);
 	CreateWICTextureFromFile(device, context, L"Assets/Textures/DamageConcrete.jpg", 0, &SRV_Concrete);
 	CreateWICTextureFromFile(device, context, L"Assets/Textures/rock.jpg", 0, &srv);
-	CreateWICTextureFromFile(device, context, L"Assets/Textures/03.png", 0, &srv1);
+	CreateWICTextureFromFile(device, context, L"Assets/Textures/03.jpg", 0, &srv1);
 	CreateWICTextureFromFile(device, context, L"Assets/Textures/rockNormals.jpg", 0, &normalMapSRV);
 	//CreateWICTextureFromFile(device, context, L"Assets/Texture/shadow_cube.png",0,&SRV_Shadow);
 	// --------------------
 	score = 0;
-	/*swprintf_s(showScore, L"%d", score);
+	swprintf_s(showScore, L"%d", score);
 
-	scoreText[0] = new UI(device, context, showScore, XMFLOAT4(+0.0f, +0.0f, +110.0f, 110.0f));*/
+	scoreText[0] = new UI(device, context, showScore, XMFLOAT4(+0.0f, +0.0f, +110.0f, 110.0f));
 
 	startText[0] = new UI(device, context, L"FLYING FIGURES", XMFLOAT4(+200.0f, +100.0f, +110.0f, 110.0f));
 	startText[1] = new UI(device, context, L"Press enter to play", XMFLOAT4(+200.0f, +150.0f, +110.0f, 110.0f));
@@ -142,15 +144,19 @@ void Game::Init()
 	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;  // how to handle addresses outside the 0-1 UV range
 	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;  // D3D11_TEXTURE_ADDRESS_WRAP is a usual value ( wrapping textures)
 	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	sampDesc.Filter = D3D11_FILTER_ANISOTROPIC;  // how to handle sampling "between" pixels ;
+	
 												//D3D11_FILTER_MIN_MAG_MIP_LINEAR is usual (trilinear filtering)
 	sampDesc.MaxAnisotropy = 16;
-
+sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	// Now, create the sampler from the description
 	device->CreateSamplerState(&sampDesc, &SampleState);
 	// -------------------------
 
+	// Tell the input assembler stage of the pipeline what kind of
+	// geometric primitives (points, lines or triangles) we want to draw.  
+	// Essentially: "What kind of shape should the GPU draw with our data?"
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	
 	// shadow mapping stuff
 
@@ -236,31 +242,32 @@ void Game::Init()
 
 
 	
-	// Tell the input assembler stage of the pipeline what kind of
-	// geometric primitives (points, lines or triangles) we want to draw.  
-	// Essentially: "What kind of shape should the GPU draw with our data?"
-	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	/*
+	
 	directionalLight.AmbientColor = XMFLOAT4(0.1, 0.1, 0.1, 0.1);
 	directionalLight.DiffuseColor = XMFLOAT4(0, 0, 1, 1);  // blue
 	directionalLight.Direction = XMFLOAT3(1, -1, 0);
-	*/
+	
 
 	directionalLight2.AmbientColor = XMFLOAT4(0.1, 0.1, 0.1, 0.1);
 	directionalLight2.DiffuseColor = XMFLOAT4(1, 1, 0, 1);  // yellow
+	//directionalLight2.DiffuseColor = XMFLOAT4(0.8f, 0.8f, 0.8f, 1);
 	directionalLight2.Direction = XMFLOAT3(0, -1, 0);
+	//directionalLight2.Direction = XMFLOAT3(1, 0, 0);
 
-	/*
-	pointLight.Color = XMFLOAT4(1,0.1f,0.1f,1);  
-	pointLight.Position = XMFLOAT3(0,2, 0);
-	XMFLOAT3 cpos;
-	XMStoreFloat3(&cpos, c->GetCameraPosition());
-	pointLight.CameraPos = cpos;
-	// for test: cout << pointLight.CameraPos.x << pointLight.CameraPos.y << pointLight.CameraPos.z << endl;
-	*/
 
 	level = 0;
+
+	XMMATRIX P = XMMatrixPerspectiveFovLH(
+		0.05f * 3.1415926535f,		// Field of View Angle
+		(float)width / height,		// Aspect ratio
+		0.1f,						// Near clip plane distance
+		100.0f);					// Far clip plane distance
+
+	XMStoreFloat4x4(&projectionMatrix2, XMMatrixTranspose(P));
+
+	
+	
 	
 }
 
@@ -372,6 +379,11 @@ void Game::CreateCamera()
 
 
 
+
+
+
+
+
 // Creates three Mesh objects, with different geometry, in the Game class
 void Game::CreateMeshes()
 {
@@ -425,18 +437,28 @@ void Game::CreateMeshes()
 void Game::CreateEntities()
 {
 
-	E[0] = new Entity(cube, "1");
-	E[1] = new Entity(cylinder, "2");
-	E[2] = new Entity(conemesh, "3");
-	E[3] = new Entity(sphere, "4");
-	E[4] = new Entity(sphere, "5");
-	E[5] = new Entity(conemesh, "6");
-	E[6] = new Entity(cube, "7");
-	E[7] = new Entity(cylinder, "8");
-	E[8] = new Entity(helix, "9");
-	E[9] = new Entity(sphere, "10");
-	E[10] = new Entity(torus, "11");
-	E[11] = new Entity(plane, "12");
+
+
+	for (int i = 0; i < 12; i++)
+	{
+		pp[i] = new Physics;
+		
+	}
+	E[0] = new Entity(cube, "1", pp[0]);
+	E[1] = new Entity(cylinder, "2", pp[1]);
+	E[2] = new Entity(conemesh, "3", pp[2]);
+	E[3] = new Entity(sphere, "4", pp[3]);
+	E[4] = new Entity(sphere, "5", pp[4]);
+	E[5] = new Entity(conemesh, "6", pp[5]);
+	E[6] = new Entity(cube, "7", pp[6]);
+	E[7] = new Entity(cylinder, "8", pp[7]);
+	E[8] = new Entity(helix, "9", pp[8]);
+	E[9] = new Entity(sphere, "10", pp[9]);
+	E[10] = new Entity(torus, "11", pp[10]);
+	E[11] = new Entity(plane, "12", pp[11]);
+
+
+	
 
 }
 
@@ -479,12 +501,19 @@ void Game::Update(float deltaTime, float totalTime)
 	float sinTime = (sin(totalTime * 2) + 2.0f) / 10.0f;
 	float cosTime = (cos(totalTime * 2)) / 10.0f;
 
-	E[0]->SetRot(XMFLOAT3(totalTime, 0, 0));
-	E[0]->SetTrans(XMFLOAT3(-1, 0, 0)); // rotate at x axis
+	for (int i = 0; i < 11; i++) {
+    E[i]->phy->setTranslation(totalTime - 3.65 - 2*i, totalTime, 0);
+	//E[0]->SetRot(XMFLOAT3(totalTime, 0, 0));
+	E[i]->SetTrans(E[i]->phy->getTranslation()); // rotate at x axis
+	//cout << E[i]->phy->getTranslation().y;
+	
+	}
 
+/*
+	
 	E[1]->SetTrans(XMFLOAT3(totalTime, 0, 0));  // move off the screen
 	E[1]->SetScale (XMFLOAT3(sinTime, sinTime, sinTime)); // scale in a sin wave
-
+	
 	E[2]->SetTrans(XMFLOAT3(3, -3, 0));
 	E[2]->SetScale(XMFLOAT3(cosTime, cosTime, cosTime)); // scale in a cos wave
 
@@ -507,8 +536,71 @@ void Game::Update(float deltaTime, float totalTime)
 	E[9]->SetTrans(XMFLOAT3(-2, 0, 0));
 
 	E[10]->SetTrans(XMFLOAT3(0, -1, 0));
+*/
+	E[11]->SetTrans(XMFLOAT3(0, -2, 1));
+	
+	
+	/*
+	E[0]->phy->setTranslation(totalTime - 3.65, totalTime, 0);
+	E[0]->phy->setScale(1, 1, 1);
+	E[0]->phy->setRotate(0, 0, 0);
+	E[0]->SetTrans(E[0]->phy->getTranslation());
+	//	e[1] = new Entity(c);
 
-	E[11]->SetTrans(XMFLOAT3(0, -2, 0));
+	E[1]->phy->setTranslation(totalTime - 3.65 + 2, totalTime + 2, 0);
+	E[1]->phy->setScale(1, 1, 1);
+	E[1]->phy->setRotate(0, 0, 0);
+
+
+	E[2]->phy->setTranslation(totalTime - 3.65 + 4, totalTime + 4, 0);
+	E[2]->phy->setScale(1, 1, 1);
+	E[2]->phy->setRotate(0, 0, 0);
+
+	E[3]->phy->setTranslation(totalTime - 3.65 + 6, totalTime + 6, 0);
+	E[3]->phy->setScale(1, 1, 1);
+	E[3]->phy->setRotate(0, 0, 0);
+	//	e[1] = new Entity(c);
+	E[4]->phy->setTranslation(totalTime - 3.65 +8, totalTime - 2, 0);
+	E[4]->phy->setScale(1, 1, 1);
+	E[4]->phy->setRotate(0, 0, 0);
+
+	E[5]->phy->setTranslation(totalTime - 3.65+10, totalTime - 4, 0);
+	E[5]->phy->setScale(1, 1, 1);
+	E[5]->phy->setRotate(0, 0, 0);
+
+	E[6]->phy->setTranslation(totalTime - 3.65+12, totalTime, 0);
+	E[6]->phy->setScale(1, 1, 1);
+	E[6]->phy->setRotate(0, 0, 0);
+	//	e[1] = new Entity(c);
+
+	E[7]->phy->setTranslation(totalTime - 3.65 + 14, totalTime + 2, 0);
+	E[7]->phy->setScale(1, 1, 1);
+	E[7]->phy->setRotate(0, 0, 0);
+
+
+	E[8]->phy->setTranslation(totalTime - 3.65 + 16, totalTime + 4, 0);
+	E[8]->phy->setScale(1, 1, 1);
+	E[8]->phy->setRotate(0, 0, 0);
+
+	E[9]->phy->setTranslation(totalTime - 3.65 + 18, totalTime + 6, 0);
+	E[9]->phy->setScale(1, 1, 1);
+	E[9]->phy->setRotate(0, 0, 0);
+	//	e[1] = new Entity(c);
+	E[10]->phy->setTranslation(totalTime - 3.65 +20, totalTime - 2, 0);
+	E[10]->phy->setScale(1, 1, 1);
+	E[10]->phy->setRotate(0, 0, 0);
+
+	E[11]->phy->setTranslation(totalTime - 3.65 +22, totalTime - 4, 0);
+	E[11]->phy->setScale(1, 1, 1);
+	E[11]->phy->setRotate(0, 0, 0);
+	*/
+	
+
+
+
+	
+
+
 
 }
 
@@ -631,8 +723,8 @@ void Game::Draw(float deltaTime, float totalTime)
 
 		// load material once
 
-		UINT stride = sizeof(Vertex);
-		UINT offset = 0;
+		//UINT stride = sizeof(Vertex);
+		//UINT offset = 0;
 
 		// ---Third Assignment---
 		// draw the entity
@@ -643,35 +735,11 @@ void Game::Draw(float deltaTime, float totalTime)
 			ID3D11Buffer *  vb = E[i]->GetMesh()->GetVertexBuffer();
 			ID3D11Buffer *  ib = E[i]->GetMesh()->GetIndexBuffer();
 
-
+			UINT stride = sizeof(Vertex);
+			UINT offset = 0;
 
 			context->IASetVertexBuffers(0, 1, &vb, &stride, &offset);
 			context->IASetIndexBuffer(ib, DXGI_FORMAT_R32_UINT, 0);
-
-			// for shadow render commented below
-			// E[i]->PrepareMaterial(c->GetViewMatrix(), c->GetProjectionMatrix()); // draw each entity
-
-
-
-			// for shadow mapping stuffs
-			//-----------render all entities in your scene without using materials-----------------
-
-			// trying to pass the light's view matrix
-			//XMVECTOR lightdirection = XMLoadFloat3(&directionalLight2.Direction);
-
-			//XMMATRIX lightview =
-			//	XMMatrixLookToLH(XMVectorSet(0, 0, 0, 0),	// light's position /center of your world
-			//		lightdirection,								// light's direction
-			//		XMVectorSet(0, 1, 0, 0));					// Updirection
-
-			//XMFLOAT4X4 LightView;
-			//XMStoreFloat4x4(&LightView, lightview);
-
-			//// trying to pass the light's projection matrix
-			//XMFLOAT4X4 LightProjection;
-			//XMMATRIX lightprojection = XMMatrixOrthographicLH(100, 100, 0, 100);
-			//// big enough to encompass entire game world
-			//XMStoreFloat4x4(&LightProjection, lightprojection);
 
 			vertexShader->SetMatrix4x4("world", E[i]->GetMatrix());
 			vertexShader->SetMatrix4x4("view", c->GetViewMatrix());
@@ -680,28 +748,36 @@ void Game::Draw(float deltaTime, float totalTime)
 			vertexShader->SetMatrix4x4("shadowView", shadowViewMatrix);
 			vertexShader->SetMatrix4x4("shadowProjection", shadowProjectionMatrix);
 
+			vertexShader->SetMatrix4x4("view2", viewMatrix2);
+			vertexShader->SetMatrix4x4("projection2", projectionMatrix2);
 			vertexShader->CopyAllBufferData();
 			vertexShader->SetShader();
 			//VS_Shadow->deviceContext->PSSetShader(0, 0, 0);
 
+			pixelShader->SetData(
+				"directionalLight",
+				&directionalLight,
+				sizeof(DirectionalLight)
+			);
 			pixelShader->SetData(
 				"directionalLight2",
 				&directionalLight2,
 				sizeof(DirectionalLight)
 			);
 			pixelShader->SetSamplerState("Sampler", SampleState);
-			pixelShader->SetShaderResourceView("Texture", srv);
-			pixelShader->SetShaderResourceView("NormalMap", normalMapSRV);
-			pixelShader->SetShaderResourceView("ShadowMap", SRV_Shadow);
 			pixelShader->SetSamplerState("ShadowSampler", Sampler_Shadow);
 
-			vertexShader->SetMatrix4x4("view2", viewMatrix2);
-			vertexShader->SetMatrix4x4("projection2", projectionMatrix2);
+			pixelShader->SetShaderResourceView("Texture", srv);
+			 pixelShader->SetShaderResourceView("NormalMap", normalMapSRV);
+			pixelShader->SetShaderResourceView("ShadowMap", SRV_Shadow);
+            //pixelShader->SetShaderResourceView("diffuseTexture", srv);
+			pixelShader->SetShaderResourceView("projectionTexture", srv1);
+           
+
+
 			
 			//pixelShader->SetData("pl", &pl, sizeof(PointLight));
-			pixelShader->SetShaderResourceView("diffuseTexture", srv);
-			pixelShader->SetShaderResourceView("projectionTexture", srv1);
-
+			
 
 
 			pixelShader->CopyAllBufferData();
@@ -721,28 +797,15 @@ void Game::Draw(float deltaTime, float totalTime)
 
 		swprintf_s(showScore, L"%d", score);
 
-		scoreText[0] = new UI(device, context, showScore, XMFLOAT4(+0.0f, +0.0f, +110.0f, 110.0f));
+		
 		scoreText[0]->getSpriteBatch()->Begin();
-		//scoreText->getSpriteBatch()->Draw(fontSRV, scoreText->getRECT());
 		scoreText[0]->getSpriteFont()->DrawString(
 			scoreText[0]->getSpriteBatch(),
 			showScore,
 			XMFLOAT2(10, 120));
 
 		scoreText[0]->getSpriteBatch()->End();
-		//fontSRV->Release();
-
-
-		//unique_ptr<SpriteBatch> spriteBatch(new SpriteBatch(context));
-		//unique_ptr<SpriteFont> spriteFont(new SpriteFont(device, L"myfile.spritefont"));
-
-		//int Intscore = 23;
-		//wchar_t score[256];
-		//	swprintf_s(score, L"%d", Intscore);
-		//spriteBatch->Begin();
-		//spriteFont->DrawString(spriteBatch.get(), score, XMFLOAT2(10, 10));
-		//spriteBatch->End();
-
+		
 
 
 		context->RSSetState(0);
@@ -827,6 +890,7 @@ void Game::OnMouseDown(WPARAM buttonState, int x, int y)
 				{
 					filterDistance = distance;
 					nearestEntity = entity;
+					dir = XMVectorSet(entity->phy->getTranslation().x, entity->phy->getTranslation().y - 1, entity->phy->getTranslation().z + 2, 0);
 					ent_clicked = true;
 				}
 		}
@@ -836,6 +900,16 @@ void Game::OnMouseDown(WPARAM buttonState, int x, int y)
 	{
 		//nearestEntity->SetTrans(XMFLOAT3(20.0f,0.0f,0.0f));
 		printf("\n%s",nearestEntity->GetName().c_str());
+
+		XMVECTOR pos = XMVectorSet(0, 1, -2, 0);
+
+		XMVECTOR up = XMVectorSet(0, 1, 0, 0);
+		XMMATRIX V = XMMatrixLookToLH(
+			pos,     // The position of the "camera"
+			dir,     // Direction the camera is looking
+			up);     // "Up" direction in 3D space (prevents roll)
+		XMStoreFloat4x4(&viewMatrix2, XMMatrixTranspose(V)); // Transpose for HLSL!
+		
 		score++;
 	}
 	// Save the previous mouse position, so we have it for the future

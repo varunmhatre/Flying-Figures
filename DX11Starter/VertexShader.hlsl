@@ -49,14 +49,13 @@ struct VertexToPixel
 	//  |   Name          Semantic
 	//  |    |                |
 	//  v    v                v
-	float4 position		: SV_POSITION;	// XYZW position (System Value Position)
-	float3 normal		: NORMAL;  // assignment 5
-	float3 worldPos		: WORLDPOS;
-	float2 uv			: TEXCOORD;      // uv coordination
 	float4 posForShadow : TEXCOORD1;
 	float4 viewposition : TEXCOORD2;
+	float4 position		: SV_POSITION;	// XYZW position (System Value Position)
+	float3 normal		: NORMAL;  // assignment 5
 	float3 tangent		: TANGENT;
-
+	float3 worldPos		: POSITION;
+	float2 uv			: TEXCOORD;      // uv coordination
 };
 
 // --------------------------------------------------------
@@ -92,6 +91,8 @@ VertexToPixel main( VertexShaderInput input )
 
 	output.normal = mul(input.normal, (float3x3)world);
 	output.tangent = mul(input.tangent, (float3x3)world);
+
+
 	output.worldPos = mul(float4(input.position, 1.0f), world).xyz;
 	output.uv = input.uv;
 

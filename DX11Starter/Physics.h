@@ -10,6 +10,9 @@ class Physics
 	XMFLOAT3 rotate;
 	XMFLOAT3 scale;
 public:
+	
+
+
 	Physics();
 	~Physics();
 

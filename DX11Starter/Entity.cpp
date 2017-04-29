@@ -2,7 +2,7 @@
 
 
 
-Entity::Entity(Mesh* m, std::string s)
+Entity::Entity(Mesh* m, std::string s, Physics *ph)
 {
 	this->mesh = m;
 	//this->material = ma;
@@ -19,10 +19,13 @@ Entity::Entity(Mesh* m, std::string s)
 										//XMStoreFloat4x4(&transform_matrix, XMMatrixTranspose(XMMatrixIdentity()));
 	XMStoreFloat4x4(&world_matrix, XMMatrixTranspose(XMMatrixIdentity())); //transpose to HLSL
 	name = s;
+	phy = ph;
 }
 
 Entity::~Entity()
 {
+	//delete phy;
+
 }
 
 // get and set world matrix for individual entity
