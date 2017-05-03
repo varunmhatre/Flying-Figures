@@ -80,7 +80,10 @@ private:
 	Mesh * plane;
 
 	// Create 5 entities
-	Entity * E[12]; // an array of 12 entities
+	std::vector<Entity*> E;
+	std::vector<int> xpos;
+	Entity * Ground;
+	//Entity * E[12]; // an array of 12 entities
 	//Entity * Entity_obj;
 
 	// Create a camera

@@ -13,8 +13,8 @@ class Mesh
 {
 
 public:
-	Mesh(Vertex * v, int num_v, unsigned int * i, int num_i, ID3D11Device* d);
-	Mesh( const char* objFile, ID3D11Device * d);  // a second constructor that accepts the name of a file to load
+	Mesh(Vertex * v, int num_v, unsigned int * i, int num_i, ID3D11Device* d, std::string s);
+	Mesh( const char* objFile, ID3D11Device * d, std::string s);  // a second constructor that accepts the name of a file to load
 	~Mesh();
 	ID3D11Buffer * const GetVertexBuffer();
 	ID3D11Buffer * const GetIndexBuffer();
@@ -23,6 +23,7 @@ public:
 	Vertex * GetVertices();
 	UINT * GetFaces();
 	BoundingOrientedBox getOBB();
+	std::string GetName();
 
 private:
 	// create two pointers for vertex buffer and index buffer
@@ -36,5 +37,6 @@ private:
 	BoundingOrientedBox obb;
 	std::vector<Vertex> verts;
 	std::vector<UINT> indices;
+	std::string name;
 };
 

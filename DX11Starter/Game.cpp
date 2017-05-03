@@ -66,8 +66,12 @@ Game::~Game()
 	delete plane;
 	for (int i = 0; i < 12; i++) {
 		delete pp[i];
+	}
+	for (int i = 0; i < E.size(); i++)
+	{
 		delete E[i];
 	}
+	delete Ground;
 	//delete Entity_obj;
 	delete c;
 	//delete ma_metal;
@@ -397,7 +401,7 @@ void Game::CreateMeshes()
 	unsigned int i1[] = { 0, 1, 2 };
 	Vertex * x1 = v1;
 	unsigned int * y1 = i1;
-	m1 = new Mesh(x1, 3, y1, 3, device);
+	m1 = new Mesh(x1, 3, y1, 3, device, "m1");
 
 	// create the second mesh
 	Vertex v2[] =
@@ -409,7 +413,7 @@ void Game::CreateMeshes()
 	Vertex * x2 = v2;
 	unsigned int i2[] = { 2, 1, 0 };
 	unsigned int * y2 = i2;
-	m2 = new Mesh(x2, 3, y2, 3, device);
+	m2 = new Mesh(x2, 3, y2, 3, device, "m2");
 
 	// create the third mesh
 	Vertex v3[] =
@@ -421,16 +425,16 @@ void Game::CreateMeshes()
 	Vertex * x3 = v3;	
 	unsigned int i3[] = { 0, 1, 2 };
 	unsigned int * y3 = i3;
-	m3 = new Mesh(x3, 3, y3, 3, device);
+	m3 = new Mesh(x3, 3, y3, 3, device, "m3");
 
 	// create new meshes using third mesh constructor
-	conemesh = new Mesh("Assets/Models/cone.obj", device);
-	cube = new Mesh("Assets/Models/cube.obj", device);
-	cylinder = new Mesh("Assets/Models/cylinder.obj", device);
-	helix = new Mesh("Assets/Models/helix.obj", device);
-	sphere = new Mesh("Assets/Models/sphere.obj", device);
-	torus = new Mesh("Assets/Models/torus.obj", device);
-	plane = new Mesh("Assets/Models/plane.obj", device);
+	conemesh = new Mesh("Assets/Models/cone.obj", device, "cone");
+	cube = new Mesh("Assets/Models/cube.obj", device, "cube");
+	cylinder = new Mesh("Assets/Models/cylinder.obj", device, "cylinder");
+	helix = new Mesh("Assets/Models/helix.obj", device, "helix");
+	sphere = new Mesh("Assets/Models/sphere.obj", device, "sphere");
+	torus = new Mesh("Assets/Models/torus.obj", device, "torus");
+	plane = new Mesh("Assets/Models/plane.obj", device, "plane");
 
 }
 
@@ -442,20 +446,26 @@ void Game::CreateEntities()
 	for (int i = 0; i < 12; i++)
 	{
 		pp[i] = new Physics;
-		
+
 	}
-	E[0] = new Entity(cube, "1", pp[0]);
-	E[1] = new Entity(cylinder, "2", pp[1]);
-	E[2] = new Entity(conemesh, "3", pp[2]);
-	E[3] = new Entity(sphere, "4", pp[3]);
-	E[4] = new Entity(sphere, "5", pp[4]);
-	E[5] = new Entity(conemesh, "6", pp[5]);
-	E[6] = new Entity(cube, "7", pp[6]);
-	E[7] = new Entity(cylinder, "8", pp[7]);
-	E[8] = new Entity(helix, "9", pp[8]);
-	E[9] = new Entity(sphere, "10", pp[9]);
-	E[10] = new Entity(torus, "11", pp[10]);
-	E[11] = new Entity(plane, "12", pp[11]);
+	
+	for (int i = 0; i < 11; i++)
+	{
+		xpos.push_back(3.65 + 2*i);
+	}
+	
+	E.push_back(new Entity(cube, "1", pp[0]));
+	E.push_back(new Entity(cylinder, "2", pp[1]));
+	E.push_back(new Entity(conemesh, "3", pp[2]));
+	E.push_back(new Entity(sphere, "4", pp[3]));
+	E.push_back(new Entity(sphere, "5", pp[4]));
+	E.push_back(new Entity(conemesh, "6", pp[5]));
+	E.push_back(new Entity(cube, "7", pp[6]));
+	E.push_back(new Entity(cylinder, "8", pp[7]));
+	E.push_back(new Entity(helix, "9", pp[8]));
+	E.push_back(new Entity(sphere, "10", pp[9]));
+	E.push_back(new Entity(torus, "11", pp[10]));
+	Ground = new Entity(plane, "12", pp[11]);
 
 
 	
@@ -501,12 +511,12 @@ void Game::Update(float deltaTime, float totalTime)
 	float sinTime = (sin(totalTime * 2) + 2.0f) / 10.0f;
 	float cosTime = (cos(totalTime * 2)) / 10.0f;
 
-	for (int i = 0; i < 11; i++) {
-    E[i]->phy->setTranslation(totalTime - 3.65 - 2*i, totalTime, 0);
-	//E[0]->SetRot(XMFLOAT3(totalTime, 0, 0));
-	E[i]->SetTrans(E[i]->phy->getTranslation()); // rotate at x axis
-	//cout << E[i]->phy->getTranslation().y;
-	
+	for (int i = 0; i < E.size(); i++) 
+	{
+		E[i]->phy->setTranslation(totalTime - xpos[i], totalTime, 0);
+		//E[0]->SetRot(XMFLOAT3(totalTime, 0, 0));
+		E[i]->SetTrans(E[i]->phy->getTranslation()); // rotate at x axis
+		//cout << E[i]->phy->getTranslation().y;
 	}
 
 /*
@@ -537,7 +547,7 @@ void Game::Update(float deltaTime, float totalTime)
 
 	E[10]->SetTrans(XMFLOAT3(0, -1, 0));
 */
-	E[11]->SetTrans(XMFLOAT3(0, -2, 1));
+	Ground->SetTrans(XMFLOAT3(0, -2, 1));
 	
 	
 	/*
@@ -636,7 +646,8 @@ void Game::RenderShadowMap()
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
 
-	for (unsigned int i = 0; i < 12; i++)
+	//Draw Flying objects
+	for (unsigned int i = 0; i < E.size(); i++)
 	{
 		// Grab the data from the first entity's mesh
 		
@@ -653,6 +664,20 @@ void Game::RenderShadowMap()
 		// Finally do the actual drawing
 		context->DrawIndexed(E[i]->GetMesh()->GetIndexCount(), 0, 0);
 	}
+
+	//Draw Ground
+	ID3D11Buffer* vb = Ground->GetMesh()->GetVertexBuffer();
+	ID3D11Buffer* ib = Ground->GetMesh()->GetIndexBuffer();
+
+	// Set buffers in the input assembler
+	context->IASetVertexBuffers(0, 1, &vb, &stride, &offset);
+	context->IASetIndexBuffer(ib, DXGI_FORMAT_R32_UINT, 0);
+
+	VS_Shadow->SetMatrix4x4("world", Ground->GetMatrix());
+	VS_Shadow->CopyAllBufferData();
+
+	// Finally do the actual drawing
+	context->DrawIndexed(Ground->GetMesh()->GetIndexCount(), 0, 0);
 
 	// Change everything back
 	context->OMSetRenderTargets(1, &backBufferRTV, depthStencilView);
@@ -728,7 +753,7 @@ void Game::Draw(float deltaTime, float totalTime)
 
 		// ---Third Assignment---
 		// draw the entity
-		for (int i = 0; i < 12; i++)
+		for (int i = 0; i < E.size(); i++)
 		{
 
 
@@ -789,6 +814,61 @@ void Game::Draw(float deltaTime, float totalTime)
 				0);    // Offset to add to each index when looking up vertices
 		}
 
+		ID3D11Buffer *  vb = Ground->GetMesh()->GetVertexBuffer();
+		ID3D11Buffer *  ib = Ground->GetMesh()->GetIndexBuffer();
+
+		UINT stride = sizeof(Vertex);
+		UINT offset = 0;
+
+		context->IASetVertexBuffers(0, 1, &vb, &stride, &offset);
+		context->IASetIndexBuffer(ib, DXGI_FORMAT_R32_UINT, 0);
+
+		vertexShader->SetMatrix4x4("world", Ground->GetMatrix());
+		vertexShader->SetMatrix4x4("view", c->GetViewMatrix());
+		vertexShader->SetMatrix4x4("projection", c->GetProjectionMatrix());
+
+		vertexShader->SetMatrix4x4("shadowView", shadowViewMatrix);
+		vertexShader->SetMatrix4x4("shadowProjection", shadowProjectionMatrix);
+
+		vertexShader->SetMatrix4x4("view2", viewMatrix2);
+		vertexShader->SetMatrix4x4("projection2", projectionMatrix2);
+		vertexShader->CopyAllBufferData();
+		vertexShader->SetShader();
+		//VS_Shadow->deviceContext->PSSetShader(0, 0, 0);
+
+		pixelShader->SetData(
+			"directionalLight",
+			&directionalLight,
+			sizeof(DirectionalLight)
+		);
+		pixelShader->SetData(
+			"directionalLight2",
+			&directionalLight2,
+			sizeof(DirectionalLight)
+		);
+		pixelShader->SetSamplerState("Sampler", SampleState);
+		pixelShader->SetSamplerState("ShadowSampler", Sampler_Shadow);
+
+		pixelShader->SetShaderResourceView("Texture", srv);
+		pixelShader->SetShaderResourceView("NormalMap", normalMapSRV);
+		pixelShader->SetShaderResourceView("ShadowMap", SRV_Shadow);
+		//pixelShader->SetShaderResourceView("diffuseTexture", srv);
+		pixelShader->SetShaderResourceView("projectionTexture", srv1);
+
+
+
+
+		//pixelShader->SetData("pl", &pl, sizeof(PointLight));
+
+
+
+		pixelShader->CopyAllBufferData();
+		pixelShader->SetShader();
+
+		context->DrawIndexed(
+			Ground->GetMesh()->GetIndexCount(),     // The number of indices to use (we could draw a subset if we wanted)
+			0,     // Offset to the first index we want to use
+			0);    // Offset to add to each index when looking up vertices
 
 		// Reset the states!
 		context->RSSetState(0);
@@ -856,13 +936,15 @@ void Game::OnMouseDown(WPARAM buttonState, int x, int y)
 
 	std::vector<Entity*> entityQueue;
 
-	for (size_t i = 0; i < 12; i++)
+	std::vector<int> remove_pos_vector;
+	for (size_t i = 0; i < E.size(); i++)
 	{
 		E[i]->GetMesh()->getOBB().Transform(entBox, XMMatrixTranspose(XMLoadFloat4x4(&E[i]->GetMatrix())));
 		if (camFrustum.Contains(entBox) != ContainmentType::DISJOINT)
 		{
 			if (entBox.Intersects(rayPos, rayDir, distance))
 			{
+				remove_pos_vector.push_back(i);
 				entityQueue.push_back(E[i]);
 			}
 		}
@@ -870,11 +952,13 @@ void Game::OnMouseDown(WPARAM buttonState, int x, int y)
 
 	bool ent_clicked = false;
 	Entity* nearestEntity;
+	int remove_pos;
 	float filterDistance = FLT_MAX;
 
 	for (size_t i = 0; i < entityQueue.size(); ++i)
 	{
 		Entity* entity = entityQueue[i];
+		int temp_pos = remove_pos_vector[i];
 
 		XMMATRIX entMatrix = XMMatrixInverse(NULL, XMMatrixTranspose(XMLoadFloat4x4(&entity->GetMatrix())));
 		XMVECTOR rayPosLocal = XMVector3TransformCoord(rayPos, entMatrix);
@@ -890,6 +974,7 @@ void Game::OnMouseDown(WPARAM buttonState, int x, int y)
 				{
 					filterDistance = distance;
 					nearestEntity = entity;
+					remove_pos = temp_pos;
 					dir = XMVectorSet(entity->phy->getTranslation().x, entity->phy->getTranslation().y - 1, entity->phy->getTranslation().z + 2, 0);
 					ent_clicked = true;
 				}
@@ -899,7 +984,10 @@ void Game::OnMouseDown(WPARAM buttonState, int x, int y)
 	if (ent_clicked)
 	{
 		//nearestEntity->SetTrans(XMFLOAT3(20.0f,0.0f,0.0f));
-		printf("\n%s",nearestEntity->GetName().c_str());
+		printf("\n%s",nearestEntity->GetMesh()->GetName().c_str());
+		E.erase(E.begin() + remove_pos);
+		xpos.push_back(xpos[remove_pos]);
+		xpos.erase(xpos.begin() + remove_pos);
 
 		XMVECTOR pos = XMVectorSet(0, 1, -2, 0);
 

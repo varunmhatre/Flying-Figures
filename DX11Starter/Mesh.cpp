@@ -16,16 +16,17 @@ Mesh::~Mesh(void)
 
 
 //second constructor: creates the two buffers from the appropriate arrays
-Mesh::Mesh(Vertex * v, int num_v, unsigned int * i, int num_i, ID3D11Device * d)
+Mesh::Mesh(Vertex * v, int num_v, unsigned int * i, int num_i, ID3D11Device * d, std::string s)
 {
 	CreateBuffers(v, num_v, i, num_i, d);
 	obb.CreateFromPoints(obb, num_v, &v->Position, sizeof(Vertex));
+	name = s;
 }
 
-
 // third constructor: accept file to load
-Mesh::Mesh(const char* objFile, ID3D11Device * d)
+Mesh::Mesh(const char* objFile, ID3D11Device * d, std::string s)
 {
+	name = s;
 	// File input object
 	std::ifstream obj(objFile);
 
@@ -204,6 +205,11 @@ ID3D11Buffer * const Mesh::GetVertexBuffer()
 ID3D11Buffer * const Mesh::GetIndexBuffer()
 {
 	return ibuffer;
+}
+
+std::string Mesh::GetName()
+{
+	return name;
 }
 
 int Mesh::GetIndexCount()
