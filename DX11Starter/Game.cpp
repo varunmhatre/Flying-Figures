@@ -1,6 +1,8 @@
 #include "Game.h"
 #include "Vertex.h"
-#include "Statemachine.h"
+#include "Statemachine.h"      
+#include <stdlib.h>    
+#include <time.h>  
 
 #include "WICTextureLoader.h"  // for loading textures
 
@@ -57,14 +59,13 @@ Game::~Game()
 	delete m1;
 	delete m2;
 	delete m3;
-	delete conemesh;
-	delete cube;
-	delete cylinder;
-	delete helix;
-	delete sphere;
-	delete torus;
-	delete plane;
-	for (int i = 0; i < 12; i++) {
+
+	for (int i = 0; i < mesh_list.size();i++)
+	{
+		delete mesh_list[i];
+	}
+	for (int i = 0; i < pp.size(); i++) 
+	{
 		delete pp[i];
 	}
 	for (int i = 0; i < E.size(); i++)
@@ -72,6 +73,7 @@ Game::~Game()
 		delete E[i];
 	}
 	delete Ground;
+	delete Ground_Mesh;
 	//delete Entity_obj;
 	delete c;
 	//delete ma_metal;
@@ -116,7 +118,8 @@ void Game::Init()
 	// geometry to draw and some simple camera matrices.
 	//  - You'll be expanding and/or replacing these later
 
-
+	curr_time = 0;
+	prev_time = 0;
 	shadowMapSize = 1024;
 	LoadShaders();
 	CreateCamera();
@@ -428,13 +431,13 @@ void Game::CreateMeshes()
 	m3 = new Mesh(x3, 3, y3, 3, device, "m3");
 
 	// create new meshes using third mesh constructor
-	conemesh = new Mesh("Assets/Models/cone.obj", device, "cone");
-	cube = new Mesh("Assets/Models/cube.obj", device, "cube");
-	cylinder = new Mesh("Assets/Models/cylinder.obj", device, "cylinder");
-	helix = new Mesh("Assets/Models/helix.obj", device, "helix");
-	sphere = new Mesh("Assets/Models/sphere.obj", device, "sphere");
-	torus = new Mesh("Assets/Models/torus.obj", device, "torus");
-	plane = new Mesh("Assets/Models/plane.obj", device, "plane");
+	mesh_list.push_back(new Mesh("Assets/Models/cone.obj", device, "cone"));
+	mesh_list.push_back(new Mesh("Assets/Models/cube.obj", device, "cube"));
+	mesh_list.push_back(new Mesh("Assets/Models/cylinder.obj", device, "cylinder"));
+	mesh_list.push_back(new Mesh("Assets/Models/helix.obj", device, "helix"));
+	mesh_list.push_back(new Mesh("Assets/Models/sphere.obj", device, "sphere"));
+	mesh_list.push_back(new Mesh("Assets/Models/torus.obj", device, "torus"));
+	Ground_Mesh = new Mesh("Assets/Models/plane.obj", device, "plane");
 
 }
 
@@ -443,30 +446,30 @@ void Game::CreateEntities()
 
 
 
-	for (int i = 0; i < 12; i++)
+	for (int i = 0; i < 13; i++)
 	{
-		pp[i] = new Physics;
-
+		pp.push_back(new Physics);
 	}
 	
-	for (int i = 0; i < 11; i++)
-	{
-		xpos.push_back(3.65 + 2*i);
-	}
 	
-	E.push_back(new Entity(cube, "1", pp[0]));
-	E.push_back(new Entity(cylinder, "2", pp[1]));
-	E.push_back(new Entity(conemesh, "3", pp[2]));
-	E.push_back(new Entity(sphere, "4", pp[3]));
-	E.push_back(new Entity(sphere, "5", pp[4]));
-	E.push_back(new Entity(conemesh, "6", pp[5]));
-	E.push_back(new Entity(cube, "7", pp[6]));
-	E.push_back(new Entity(cylinder, "8", pp[7]));
-	E.push_back(new Entity(helix, "9", pp[8]));
-	E.push_back(new Entity(sphere, "10", pp[9]));
-	E.push_back(new Entity(torus, "11", pp[10]));
-	Ground = new Entity(plane, "12", pp[11]);
+	E.push_back(new Entity(mesh_list[0], "1", pp[0]));
+	E.push_back(new Entity(mesh_list[2], "2", pp[1]));
+	E.push_back(new Entity(mesh_list[4], "3", pp[2]));
+	E.push_back(new Entity(mesh_list[1], "4", pp[3]));
+	E.push_back(new Entity(mesh_list[3], "5", pp[4]));
+	E.push_back(new Entity(mesh_list[5], "6", pp[5]));
+	E.push_back(new Entity(mesh_list[3], "7", pp[6]));
+	E.push_back(new Entity(mesh_list[5], "8", pp[7]));
+	E.push_back(new Entity(mesh_list[1], "9", pp[8]));
+	E.push_back(new Entity(mesh_list[2], "10", pp[9]));
+	E.push_back(new Entity(mesh_list[4], "11", pp[10]));
+	E.push_back(new Entity(mesh_list[0], "12", pp[11]));
+	Ground = new Entity(Ground_Mesh, "Ground", pp[12]);
 
+	for (int i = 0; i < E.size(); i++)
+	{
+		en_pos.push_back(i);
+	}
 
 	
 
@@ -508,17 +511,41 @@ void Game::Update(float deltaTime, float totalTime)
 
 	// ---- assignment 3-----
 
-	float sinTime = (sin(totalTime * 2) + 2.0f) / 10.0f;
+	float sinTime = (sin(totalTime * 2)) / 10.0f;
 	float cosTime = (cos(totalTime * 2)) / 10.0f;
 
 	for (int i = 0; i < E.size(); i++) 
 	{
-		E[i]->phy->setTranslation(totalTime - xpos[i], totalTime, 0);
+		E[i]->phy->setTranslation(totalTime - en_pos[i], totalTime - en_pos[i], 0);
 		//E[0]->SetRot(XMFLOAT3(totalTime, 0, 0));
 		E[i]->SetTrans(E[i]->phy->getTranslation()); // rotate at x axis
 		//cout << E[i]->phy->getTranslation().y;
 	}
+	printf("%d", time(NULL));
+	//respawn clicked items after 6 seconds
+	curr_time = totalTime;
+	if (curr_time > prev_time)
+	{
+		prev_time = curr_time;
+		for (int i = 0; i < count_down.size(); i++)
+		{
+			count_down[i]--;
+			if (count_down[i] == 0)
+			{
+				printf("\n%s", "popped");
+				count_down.erase(count_down.begin() + i);
+				pp.push_back(new Physics);
 
+				/* initialize random seed: */
+				srand(time(NULL));
+
+				/* generate secret number between 0 and 5: */
+				int rand_num = rand() % 6;
+
+				E.push_back(new Entity(mesh_list[rand_num], "new", pp[E.size()-1]));
+			}
+		}
+	}
 /*
 	
 	E[1]->SetTrans(XMFLOAT3(totalTime, 0, 0));  // move off the screen
@@ -985,9 +1012,13 @@ void Game::OnMouseDown(WPARAM buttonState, int x, int y)
 	{
 		//nearestEntity->SetTrans(XMFLOAT3(20.0f,0.0f,0.0f));
 		printf("\n%s",nearestEntity->GetMesh()->GetName().c_str());
+		delete E[remove_pos];
 		E.erase(E.begin() + remove_pos);
-		xpos.push_back(xpos[remove_pos]);
-		xpos.erase(xpos.begin() + remove_pos);
+		en_pos.push_back(en_pos[remove_pos]);
+		en_pos.erase(en_pos.begin() + remove_pos);
+		pp.push_back(pp[remove_pos]);
+		pp.erase(pp.begin() + remove_pos);
+		count_down.push_back(6);
 
 		XMVECTOR pos = XMVectorSet(0, 1, -2, 0);
 

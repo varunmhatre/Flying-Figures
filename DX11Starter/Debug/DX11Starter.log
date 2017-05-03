@@ -1,12 +1,2 @@
-﻿  Mesh.cpp
-  Game.cpp
-c:\users\varunjmhatre\desktop\ggp\flying figures\flying-figures\dx11starter\game.cpp(70): warning C4018: '<': signed/unsigned mismatch
-c:\users\varunjmhatre\desktop\ggp\flying figures\flying-figures\dx11starter\game.cpp(251): warning C4305: 'argument': truncation from 'double' to 'float'
-c:\users\varunjmhatre\desktop\ggp\flying figures\flying-figures\dx11starter\game.cpp(256): warning C4305: 'argument': truncation from 'double' to 'float'
-c:\users\varunjmhatre\desktop\ggp\flying figures\flying-figures\dx11starter\game.cpp(454): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
-c:\users\varunjmhatre\desktop\ggp\flying figures\flying-figures\dx11starter\game.cpp(514): warning C4018: '<': signed/unsigned mismatch
-c:\users\varunjmhatre\desktop\ggp\flying figures\flying-figures\dx11starter\game.cpp(756): warning C4018: '<': signed/unsigned mismatch
-c:\users\varunjmhatre\desktop\ggp\flying figures\flying-figures\dx11starter\game.cpp(970): warning C4018: '<': signed/unsigned mismatch
-  Generating Code...
-  DX11Starter.vcxproj -> C:\Users\varunjmhatre\Desktop\GGP\Flying Figures\Flying-Figures\DX11Starter\Debug\DX11Starter.exe
+﻿  DX11Starter.vcxproj -> C:\Users\varunjmhatre\Desktop\GGP\Flying Figures\Flying-Figures\DX11Starter\Debug\DX11Starter.exe
   DX11Starter.vcxproj -> C:\Users\varunjmhatre\Desktop\GGP\Flying Figures\Flying-Figures\DX11Starter\Debug\DX11Starter.pdb (Full PDB)

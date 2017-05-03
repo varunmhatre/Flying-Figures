@@ -16,7 +16,11 @@ Physics::~Physics()
 
 void Physics::setTranslation(float x, float y, float z) {
 	//x = x - 3.65;
-	y = -0.1*x*x + 1;  //parabola to simulate gravity
+	//y = -0.1*x*x + 1;  //parabola to simulate gravity
+
+	x = sin(x / 1.9f)*5.0f;			//circle to have objects appear again in cycles
+	y = cos(y / 1.9f)*5.0f - 4.5f;	//circle to have objects appear again in cycles
+
 	translation = XMFLOAT3(x, y, z);
 	//XMMATRIX translation = XMMatrixTranslation(x, y, z);
 	//XMStoreFloat4x4(&translationMatrix, translation);

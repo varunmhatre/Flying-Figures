@@ -71,18 +71,27 @@ private:
 	Mesh *m2;
 	Mesh *m3;
 	// Create a new mesh using constructor overloading
-	Mesh * conemesh;
-	Mesh * cube;
-	Mesh * cylinder;
-	Mesh * helix;
-	Mesh * sphere;
-	Mesh * torus;
-	Mesh * plane;
+	//Mesh * conemesh;
+	//Mesh * cube;
+	//Mesh * cylinder;
+	//Mesh * helix;
+	//Mesh * sphere;
+	//Mesh * torus;
+	//Mesh * plane;
+
+
 
 	// Create 5 entities
 	std::vector<Entity*> E;
-	std::vector<int> xpos;
+	std::vector<Mesh *> mesh_list;
+	std::vector<int> en_pos;
+	std::vector<int> count_down;
+	int curr_time;
+	int prev_time;
+
 	Entity * Ground;
+	Mesh * Ground_Mesh;
+
 	//Entity * E[12]; // an array of 12 entities
 	//Entity * Entity_obj;
 
@@ -136,7 +145,7 @@ private:
 
 	int level;
 
-	Physics *pp[12];
+	std::vector<Physics *> pp;
 
 	XMVECTOR dir;
 };
