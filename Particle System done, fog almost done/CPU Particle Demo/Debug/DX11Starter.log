@@ -1,0 +1,5 @@
+﻿  Game.cpp
+d:\ms assignments\semester 2\game graphics programming\particle syetem code\cpu particles\cpu particle demo\game.cpp(195): warning C4305: 'argument': truncation from 'double' to 'float'
+d:\ms assignments\semester 2\game graphics programming\particle syetem code\cpu particles\cpu particle demo\game.cpp(196): warning C4305: 'argument': truncation from 'double' to 'float'
+  DX11Starter.vcxproj -> D:\MS Assignments\Semester 2\Game Graphics Programming\Particle Syetem Code\CPU Particles\CPU Particle Demo\Debug\DX11Starter.exe
+  DX11Starter.vcxproj -> D:\MS Assignments\Semester 2\Game Graphics Programming\Particle Syetem Code\CPU Particles\CPU Particle Demo\Debug\DX11Starter.pdb (Full PDB)
