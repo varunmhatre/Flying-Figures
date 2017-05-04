@@ -1,2 +1,18 @@
-﻿  DX11Starter.vcxproj -> C:\Users\varunjmhatre\Desktop\GGP\Flying Figures\Flying-Figures\DX11Starter\Debug\DX11Starter.exe
-  DX11Starter.vcxproj -> C:\Users\varunjmhatre\Desktop\GGP\Flying Figures\Flying-Figures\DX11Starter\Debug\DX11Starter.pdb (Full PDB)
+﻿  Game.cpp
+f:\740 game graphics programming\project\00\flying-figures\dx11starter\game.cpp(63): warning C4018: '<': signed/unsigned mismatch
+f:\740 game graphics programming\project\00\flying-figures\dx11starter\game.cpp(67): warning C4018: '<': signed/unsigned mismatch
+f:\740 game graphics programming\project\00\flying-figures\dx11starter\game.cpp(71): warning C4018: '<': signed/unsigned mismatch
+f:\740 game graphics programming\project\00\flying-figures\dx11starter\game.cpp(257): warning C4305: 'argument': truncation from 'double' to 'float'
+f:\740 game graphics programming\project\00\flying-figures\dx11starter\game.cpp(262): warning C4305: 'argument': truncation from 'double' to 'float'
+f:\740 game graphics programming\project\00\flying-figures\dx11starter\game.cpp(485): warning C4018: '<': signed/unsigned mismatch
+f:\740 game graphics programming\project\00\flying-figures\dx11starter\game.cpp(533): warning C4018: '<': signed/unsigned mismatch
+f:\740 game graphics programming\project\00\flying-figures\dx11starter\game.cpp(542): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+f:\740 game graphics programming\project\00\flying-figures\dx11starter\game.cpp(546): warning C4018: '<': signed/unsigned mismatch
+f:\740 game graphics programming\project\00\flying-figures\dx11starter\game.cpp(556): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+f:\740 game graphics programming\project\00\flying-figures\dx11starter\game.cpp(540): warning C4477: 'printf' : format string '%d' requires an argument of type 'int', but variadic argument 1 has type 'time_t'
+  f:\740 game graphics programming\project\00\flying-figures\dx11starter\game.cpp(540): note: consider using '%lld' in the format string
+  f:\740 game graphics programming\project\00\flying-figures\dx11starter\game.cpp(540): note: consider using '%I64d' in the format string
+f:\740 game graphics programming\project\00\flying-figures\dx11starter\game.cpp(799): warning C4018: '<': signed/unsigned mismatch
+f:\740 game graphics programming\project\00\flying-figures\dx11starter\game.cpp(1048): warning C4018: '<': signed/unsigned mismatch
+  DX11Starter.vcxproj -> F:\740 game graphics programming\project\00\Flying-Figures\DX11Starter\Debug\DX11Starter.exe
+  DX11Starter.vcxproj -> F:\740 game graphics programming\project\00\Flying-Figures\DX11Starter\Debug\DX11Starter.pdb (Full PDB)

@@ -3,7 +3,7 @@
 #include "Statemachine.h"      
 #include <stdlib.h>    
 #include <time.h>  
-
+#include "DDSTextureLoader.h"
 #include "WICTextureLoader.h"  // for loading textures
 
 // for test
@@ -80,6 +80,9 @@ Game::~Game()
 	//delete ma_concrete;
 	delete vertexShader;
 	delete pixelShader;
+	delete skyVS;
+	delete skyPS;
+
 	SRV_Concrete->Release();
 	SRV_Metal->Release();
 	SampleState->Release(); 
@@ -105,6 +108,11 @@ Game::~Game()
 	delete scoreText[0];
 	delete startText[0];
 	delete startText[1];
+
+	skySRV->Release();
+	rsSky->Release();
+	dsSky->Release();
+
 	
 }
 
@@ -136,6 +144,8 @@ void Game::Init()
 	CreateWICTextureFromFile(device, context, L"Assets/Textures/03.jpg", 0, &srv1);
 	CreateWICTextureFromFile(device, context, L"Assets/Textures/rockNormals.jpg", 0, &normalMapSRV);
 	//CreateWICTextureFromFile(device, context, L"Assets/Texture/shadow_cube.png",0,&SRV_Shadow);
+	CreateDDSTextureFromFile(device, L"Assets/Textures//SunnyCubeMap.dds", 0, &skySRV);
+	//CreateDDSTextureFromFile(device, L"Assets/Textures//0.dds", 0, &skySRV);
 	// --------------------
 	score = 0;
 	swprintf_s(showScore, L"%d", score);
@@ -224,32 +234,25 @@ sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	shadowRastDesc.SlopeScaledDepthBias = 1.0f;
 	device->CreateRasterizerState(&shadowRastDesc, &RS_Shadow);
 
-	// set up the viewport
-	//myViewPort.Width = (float)1024;
-	//myViewPort.Height = (float)1024;
-	//myViewPort.MinDepth = 0.0f;
-	//myViewPort.MaxDepth = 1.0f;
-	//myViewPort.TopLeftX = 0.0f;
-	//myViewPort.TopLeftY = 0.0f;
+	//set up sky
 
-	// finishing the shadow mapping depth buffer thing??
-	
-	/*
-	// shadow mappign stuff-->setting render states
-	// set null render target and clear the depth buffer
-	ID3D11RenderTargetView* renderTarget[1] = { 0 };
-	context->OMSetRenderTargets(1, renderTarget, DSV_Shadow);
-	context->ClearDepthStencilView(DSV_Shadow, D3D11_CLEAR_DEPTH, 1.0f, 0); // clear the depth buffer
-	// set the viewport
-	context->RSSetViewports(1, &myViewPort);
-	// Set up the rasterize state
+	//set up rasterize state
 	D3D11_RASTERIZER_DESC rsDesc = {};
-	device->CreateRasterizerState(&rsDesc, &RS_Shadow);
-	*/
+	rsDesc.FillMode = D3D11_FILL_SOLID;
+	rsDesc.CullMode = D3D11_CULL_FRONT;
+	rsDesc.DepthClipEnable = true;
+	device->CreateRasterizerState(&rsDesc, &rsSky);
 
+	D3D11_DEPTH_STENCIL_DESC dsDesc = {};
+	dsDesc.DepthEnable = true;
+	dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	dsDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+	device->CreateDepthStencilState(&dsDesc, &dsSky);
 
-	
-
+	// Tell the input assembler stage of the pipeline what kind of
+	// geometric primitives (points, lines or triangles) we want to draw.  
+	// Essentially: "What kind of shape should the GPU draw with our data?"
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	
 	directionalLight.AmbientColor = XMFLOAT4(0.1, 0.1, 0.1, 0.1);
 	directionalLight.DiffuseColor = XMFLOAT4(0, 0, 1, 1);  // blue
@@ -261,6 +264,13 @@ sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	//directionalLight2.DiffuseColor = XMFLOAT4(0.8f, 0.8f, 0.8f, 1);
 	directionalLight2.Direction = XMFLOAT3(0, -1, 0);
 	//directionalLight2.Direction = XMFLOAT3(1, 0, 0);
+
+	pointLight.Color = XMFLOAT4(0, 1, 0, 1);
+	pointLight.Position = XMFLOAT3(0, 2, 0);
+	XMStoreFloat3(&pointLight.CameraPos, c->GetCameraPosition());
+
+	//set up sky
+
 
 
 	level = 0;
@@ -313,7 +323,13 @@ void Game::LoadShaders()
 		VS_Shadow->LoadShaderFile(L"VS_Shadow.cso");
 
 	//context->PSSetShader(0, 0, 0);
+	skyVS = new SimpleVertexShader(device, context);
+	if (!skyVS->LoadShaderFile(L"Debug/SkyVS.cso"))
+		skyVS->LoadShaderFile(L"SkyVS.cso");
 
+	skyPS = new SimplePixelShader(device, context);
+	if (!skyPS->LoadShaderFile(L"Debug/SkyPS.cso"))
+		skyPS->LoadShaderFile(L"SkyPS.cso");
 
 	// ??? PS_Shadow = new SimplePixelShader(device, context);  // no pixel shader??
 	
@@ -873,6 +889,13 @@ void Game::Draw(float deltaTime, float totalTime)
 			&directionalLight2,
 			sizeof(DirectionalLight)
 		);
+
+		pixelShader->SetData(
+			"pointLight",
+			&pointLight,
+			sizeof(PointLight)
+		);
+
 		pixelShader->SetSamplerState("Sampler", SampleState);
 		pixelShader->SetSamplerState("ShadowSampler", Sampler_Shadow);
 
@@ -882,7 +905,7 @@ void Game::Draw(float deltaTime, float totalTime)
 		//pixelShader->SetShaderResourceView("diffuseTexture", srv);
 		pixelShader->SetShaderResourceView("projectionTexture", srv1);
 
-
+		pixelShader->SetShaderResourceView("Sky", skySRV);
 
 
 		//pixelShader->SetData("pl", &pl, sizeof(PointLight));
@@ -902,6 +925,34 @@ void Game::Draw(float deltaTime, float totalTime)
 		context->OMSetDepthStencilState(0, 0);
 		pixelShader->SetShaderResourceView("ShadowMap", 0);
 
+		// Draw the sky ------------------------
+
+		vb = mesh_list[1]->GetVertexBuffer();
+		ib = mesh_list[1]->GetIndexBuffer();
+
+		// Set buffers in the input assembler
+		context->IASetVertexBuffers(0, 1, &vb, &stride, &offset);
+		context->IASetIndexBuffer(ib, DXGI_FORMAT_R32_UINT, 0);
+
+		// Set up the sky shaders
+		skyVS->SetMatrix4x4("view", c->GetViewMatrix());
+		skyVS->SetMatrix4x4("projection", c->GetProjectionMatrix());
+		skyVS->CopyAllBufferData();
+		skyVS->SetShader();
+
+		skyPS->SetShaderResourceView("Sky", skySRV);
+		skyPS->CopyAllBufferData();
+		skyPS->SetShader();
+
+		context->RSSetState(rsSky);
+		context->OMSetDepthStencilState(dsSky, 0);
+		context->DrawIndexed(mesh_list[1]->GetIndexCount(), 0, 0);
+
+		context->RSSetState(0);
+		context->OMSetDepthStencilState(0, 0);
+		
+		
+		
 		swprintf_s(showScore, L"%d", score);
 
 		

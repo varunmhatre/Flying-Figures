@@ -105,7 +105,7 @@ private:
 	// Create a field of DirectionalLight (no pointer)
 	DirectionalLight directionalLight;
 	DirectionalLight directionalLight2;
-	//PointLight pointLight;
+	PointLight pointLight;
 
 	// ----assignment 6----
 	ID3D11ShaderResourceView* SRV_Metal;
@@ -148,5 +148,13 @@ private:
 	std::vector<Physics *> pp;
 
 	XMVECTOR dir;
+
+
+	//for skybox
+	ID3D11ShaderResourceView* skySRV;
+	SimpleVertexShader * skyVS;
+	SimplePixelShader * skyPS;
+	ID3D11RasterizerState * rsSky;
+	ID3D11DepthStencilState * dsSky;
 };
 

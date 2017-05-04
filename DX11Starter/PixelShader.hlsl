@@ -18,7 +18,7 @@ cbuffer lightData : register(b0)
 {
 	DirectionalLight directionalLight2;
 	DirectionalLight directionalLight;
-PointLight pl;
+    PointLight pl;
 };
 
 
@@ -27,7 +27,7 @@ Texture2D NormalMap		: register(t1);
 Texture2D ShadowMap		: register(t2);
 
 Texture2D projectionTexture  : register(t3);
-
+TextureCube Sky			: register(t4);
 
 SamplerState Sampler	: register(s0);
 SamplerComparisonState ShadowSampler : register(s1);
@@ -77,7 +77,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 	float3x3 TBN = float3x3(T, B, N);
 	input.normal = normalize(mul(normalFromMap, TBN));
 
-float4 textureColor = Texture.Sample(Sampler, input.uv);
+    float4 textureColor = Texture.Sample(Sampler, input.uv);
 
 	if ((saturate(projectTexCoord.x) == projectTexCoord.x) && (saturate(projectTexCoord.y) == projectTexCoord.y))
 	{
@@ -99,6 +99,7 @@ float4 textureColor = Texture.Sample(Sampler, input.uv);
 	float4 dlight = directionalLight2.DiffuseColor* lightAmountDL*textureColor ;
 	
 	
+
 	float lightAmountDL0 = saturate(dot(input.normal, -normalize(directionalLight.Direction)));
 
 	float4 dlight0 = directionalLight.DiffuseColor* lightAmountDL0*textureColor;
@@ -119,9 +120,13 @@ float4 textureColor = Texture.Sample(Sampler, input.uv);
 
 	 float4 diffuseColor = Texture.Sample(Sampler, input.uv);
 
+	 float3 toCamera = normalize(pl.cameraPosition - input.worldPos);
+	 
+	 float4 skyColor = Sky.Sample(Sampler, reflect(-toCamera, input.normal));
+	// return lerp(textureColor, skyColor, 0.5f);
 
-	// float4 result = shadowAmount*(dlight+dlight0);
-	float4 result = shadowAmount*diffuseColor+ dlight + dlight0;
+	 float4 result = shadowAmount*(dlight+dlight0);
+	//float4 result = shadowAmount*diffuseColor+ dlight + dlight0;
 	//float4 result =  dlight;
 	 return result;
 
