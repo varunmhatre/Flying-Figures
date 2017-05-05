@@ -13,6 +13,7 @@
 #include "Physics.h"
 #include "UI.h"
 #include "Scenes.h"
+#include "Emitter.h"
 
 
 class Game 
@@ -81,9 +82,10 @@ private:
 
 
 
-	// Create 5 entities
+	// Create entities
 	std::vector<Entity*> E;
 	std::vector<Mesh *> mesh_list;
+	std::vector<std::string> mesh_names;
 	std::vector<int> en_pos;
 	std::vector<int> count_down;
 	int curr_time;
@@ -156,5 +158,24 @@ private:
 	SimplePixelShader * skyPS;
 	ID3D11RasterizerState * rsSky;
 	ID3D11DepthStencilState * dsSky;
+
+	// Particle stuff
+	ID3D11ShaderResourceView* particleTexture;
+	SimpleVertexShader* particleVS;
+	SimplePixelShader* particlePS;
+	ID3D11DepthStencilState* particleDepthState;
+	ID3D11BlendState* particleBlendState;
+	Emitter* emitter_yellow_explosion;
+	Emitter* emitter_red_explosion;
+	Emitter* emitter_fog;
+
+	ID3D11ShaderResourceView* particleTexture1;
+	ID3D11ShaderResourceView* fogParticleTexture;
+
+	float deltaTimeNew;
+	int tempEmitterFlag;
+	int tempResetEmitterFlag;
+	float TimeSinceBeginningForGame;
+
 };
 

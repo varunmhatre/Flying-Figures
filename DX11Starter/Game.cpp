@@ -33,6 +33,12 @@ Game::Game(HINSTANCE hInstance)
 	// Initialize fields
 	vertexShader = 0;
 	pixelShader = 0;
+
+	//Particles
+	tempEmitterFlag = 1;
+	TimeSinceBeginningForGame = 0;
+	tempResetEmitterFlag = 0;
+	//Particles end
 	
 	//sound = 0;
 
@@ -82,6 +88,22 @@ Game::~Game()
 	delete pixelShader;
 	delete skyVS;
 	delete skyPS;
+
+	//Particles
+	delete particleVS;
+	delete particlePS;
+
+	particleTexture->Release();
+	particleTexture1->Release();
+	fogParticleTexture->Release();
+
+	particleBlendState->Release();
+	particleDepthState->Release();
+
+	delete emitter_yellow_explosion;
+	delete emitter_red_explosion;
+	delete emitter_fog;
+	//Particles end
 
 	SRV_Concrete->Release();
 	SRV_Metal->Release();
@@ -146,7 +168,100 @@ void Game::Init()
 	//CreateWICTextureFromFile(device, context, L"Assets/Texture/shadow_cube.png",0,&SRV_Shadow);
 	CreateDDSTextureFromFile(device, L"Assets/Textures//SunnyCubeMap.dds", 0, &skySRV);
 	//CreateDDSTextureFromFile(device, L"Assets/Textures//0.dds", 0, &skySRV);
-	// --------------------
+
+	//Particles
+	DirectX::CreateWICTextureFromFile(device, context, L"Assets/Textures/Particles/circleParticle.jpg", 0, &particleTexture);
+	DirectX::CreateWICTextureFromFile(device, context, L"Assets/Textures/Particles/particle.jpg", 0, &particleTexture1);
+	DirectX::CreateWICTextureFromFile(device, context, L"Assets/Textures/Particles/fogParticle.jpg", 0, &fogParticleTexture);
+	
+
+	// A depth state for the particles
+	D3D11_DEPTH_STENCIL_DESC dsDesc2 = {};
+	dsDesc2.DepthEnable = true;
+	dsDesc2.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO; // Turns off depth writing
+	dsDesc2.DepthFunc = D3D11_COMPARISON_LESS;
+	device->CreateDepthStencilState(&dsDesc2, &particleDepthState);
+
+
+	// Blend for particles (additive)
+	D3D11_BLEND_DESC blend = {};
+	blend.AlphaToCoverageEnable = false;
+	blend.IndependentBlendEnable = false;
+	blend.RenderTarget[0].BlendEnable = true;
+	blend.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	blend.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+	blend.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+	blend.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	blend.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	blend.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+	blend.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	device->CreateBlendState(&blend, &particleBlendState);
+
+
+	// Set up particles
+	emitter_red_explosion = new Emitter(
+		50,								// Max particles
+		50,								// Particles per second
+		1,								// Particle lifetime
+		1.0f,							// Start size	
+		5.0f,							// End size
+		XMFLOAT4(1, 0.1f, 0.1f, 0.1f),	// Start color
+		XMFLOAT4(1, 0.6f, 0.1f, 0),		// End color
+		XMFLOAT3(0, 0, 0),				// Start velocity
+		XMFLOAT3(2, 2, 0),				// Start position
+		XMFLOAT3(10, 10, 0),			// Start acceleration
+		device,
+		particleVS,
+		particlePS,
+		particleTexture1,
+		1,								// Emitter Type e.g. 1 = simple explosion, 2 Particle stream going upwards
+		1.0);							// Emitter Age in seconds
+
+
+
+										//////////////////////////////////////////////Perodic Stream of particles ////////////////////////////////////////////////
+
+										// Set up particles
+	emitter_yellow_explosion = new Emitter(
+		50,								// Max particles
+		50,								// Particles per second
+		3.0,							// Particle lifetime
+		0.5f,							// Start size
+		1.5f,							// End size
+		XMFLOAT4(1, 0.1f, 0.1f, 0.2f),	// Start color
+		XMFLOAT4(1, 0.6f, 0.1f, 0),		// End color
+		XMFLOAT3(-10, 20, 0),			// Start velocity
+		XMFLOAT3(2, 0, 0),				// Start position
+		XMFLOAT3(50, -5, 0),			// Start acceleration
+		device,
+		particleVS,
+		particlePS,
+		particleTexture,
+		1,								// Emitter Type e.g. 1 = simple explosion
+		1.0);							// Emitter Age in seconds	
+
+
+
+	emitter_fog = new Emitter(
+		1,								// Max particles
+		1,								// Particles per second
+		10.0,							// Particle lifetime
+		40.0f,							// Start size
+		50.0f,							// End size
+		XMFLOAT4(1, 0.3, 0.5, 0.5),		// Start color
+		XMFLOAT4(1, 0.5, 0.7, 0.5),		// End color
+		XMFLOAT3(-10, 20, 0),			// Start velocity
+		XMFLOAT3(-10, -10, 0),			// Start position
+		XMFLOAT3(50, -5, 0),			// Start acceleration
+		device,
+		particleVS,
+		particlePS,
+		fogParticleTexture,
+		3,								// Emitter Type e.g. 1 = simple red explosion, 2 = simple yellow explosion, 3 = fog
+		1.0);							// Emitter Age in seconds	
+	//Particles end
+
+
 	score = 0;
 	swprintf_s(showScore, L"%d", score);
 
@@ -165,7 +280,7 @@ void Game::Init()
 	
 												//D3D11_FILTER_MIN_MAG_MIP_LINEAR is usual (trilinear filtering)
 	sampDesc.MaxAnisotropy = 16;
-sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	// Now, create the sampler from the description
 	device->CreateSamplerState(&sampDesc, &SampleState);
 	// -------------------------
@@ -304,6 +419,16 @@ void Game::LoadShaders()
 	pixelShader = new SimplePixelShader(device, context);
 	if(!pixelShader->LoadShaderFile(L"Debug/PixelShader.cso"))	
 		pixelShader->LoadShaderFile(L"PixelShader.cso");
+
+	//Particles shaders
+	particleVS = new SimpleVertexShader(device, context);
+	if (!particleVS->LoadShaderFile(L"Debug/ParticleVS.cso"))
+		particleVS->LoadShaderFile(L"ParticleVS.cso");
+
+	particlePS = new SimplePixelShader(device, context);
+	if (!particlePS->LoadShaderFile(L"Debug/ParticlePS.cso"))
+		particlePS->LoadShaderFile(L"ParticlePS.cso");
+	//Particles shaders end
 
 	// You'll notice that the code above attempts to load each
 	// compiled shader file (.cso) from two different relative paths.
@@ -448,12 +573,19 @@ void Game::CreateMeshes()
 
 	// create new meshes using third mesh constructor
 	mesh_list.push_back(new Mesh("Assets/Models/cone.obj", device, "cone"));
+	mesh_names.push_back("cone");
 	mesh_list.push_back(new Mesh("Assets/Models/cube.obj", device, "cube"));
+	mesh_names.push_back("cube");
 	mesh_list.push_back(new Mesh("Assets/Models/cylinder.obj", device, "cylinder"));
+	mesh_names.push_back("cylinder");
 	mesh_list.push_back(new Mesh("Assets/Models/helix.obj", device, "helix"));
+	mesh_names.push_back("helix");
 	mesh_list.push_back(new Mesh("Assets/Models/sphere.obj", device, "sphere"));
+	mesh_names.push_back("sphere");
 	mesh_list.push_back(new Mesh("Assets/Models/torus.obj", device, "torus"));
+	mesh_names.push_back("torus");
 	Ground_Mesh = new Mesh("Assets/Models/plane.obj", device, "plane");
+	mesh_names.push_back("plane");
 
 }
 
@@ -522,6 +654,30 @@ void Game::Update(float deltaTime, float totalTime)
 	if (GetAsyncKeyState(VK_ESCAPE))
 		Quit();
 
+
+	TimeSinceBeginningForGame += deltaTime;								// Time passed since beginning of this particle system spawn OR Beginning of game?
+	//printf("\n%f = Game", TimeSinceBeginningForGame);
+
+
+
+
+	//	if (TimeSinceBeginningForGame > 5)									// Execute the code in if block after 5 seconds game has started
+	//	{
+	emitter_yellow_explosion->Update(deltaTime);			// Simple Yellow Red explosion Emitter
+
+	emitter_red_explosion->Update(deltaTime);		// Nomal Explosion Emitter
+
+	emitter_fog->Update(deltaTime);
+	//}
+
+	//if (TimeSinceBeginningForGame > 5 && tempResetEmitterFlag == 0)			// Reposition emitter and for how long to execute the particle system
+	//{
+	//	emitter_red_explosion->ResetEmitter(XMFLOAT3(0, 0, 0), 1.0f);
+	//	tempResetEmitterFlag = 1;
+	//}
+
+	this->deltaTimeNew = deltaTime;
+
 	// when getting key input calling camera updating function
 	c->Update(deltaTime);
 
@@ -537,7 +693,6 @@ void Game::Update(float deltaTime, float totalTime)
 		E[i]->SetTrans(E[i]->phy->getTranslation()); // rotate at x axis
 		//cout << E[i]->phy->getTranslation().y;
 	}
-	printf("%d", time(NULL));
 	//respawn clicked items after 6 seconds
 	curr_time = totalTime;
 	if (curr_time > prev_time)
@@ -548,7 +703,6 @@ void Game::Update(float deltaTime, float totalTime)
 			count_down[i]--;
 			if (count_down[i] == 0)
 			{
-				printf("\n%s", "popped");
 				count_down.erase(count_down.begin() + i);
 				pp.push_back(new Physics);
 
@@ -557,8 +711,9 @@ void Game::Update(float deltaTime, float totalTime)
 
 				/* generate secret number between 0 and 5: */
 				int rand_num = rand() % 6;
+				//emitter_red_explosion->ResetEmitter(XMFLOAT3(0, 0, 0), 1.0f);
 
-				E.push_back(new Entity(mesh_list[rand_num], "new", pp[E.size()-1]));
+				E.push_back(new Entity(mesh_list[rand_num], "", pp[E.size()-1]));
 			}
 		}
 	}
@@ -964,7 +1119,18 @@ void Game::Draw(float deltaTime, float totalTime)
 
 		scoreText[0]->getSpriteBatch()->End();
 		
+		// Particle states
+		float blend[4] = { 1,1,1,1 };
+		context->OMSetBlendState(particleBlendState, blend, 0xffffffff);  // Additive blending
+		context->OMSetDepthStencilState(particleDepthState, 0);			// No depth WRITING
 
+																		// Draw the emitter
+		emitter_yellow_explosion->Draw(context, c);
+
+		emitter_red_explosion->Draw(context, c);
+
+		//emitter_fog->Draw(context, c);
+		// Particle states end
 
 		context->RSSetState(0);
 		context->OMSetDepthStencilState(0, 0);
@@ -1070,7 +1236,11 @@ void Game::OnMouseDown(WPARAM buttonState, int x, int y)
 		pp.push_back(pp[remove_pos]);
 		pp.erase(pp.begin() + remove_pos);
 		count_down.push_back(6);
-
+		
+		score++;
+	}
+	else
+	{
 		XMVECTOR pos = XMVectorSet(0, 1, -2, 0);
 
 		XMVECTOR up = XMVectorSet(0, 1, 0, 0);
@@ -1079,8 +1249,6 @@ void Game::OnMouseDown(WPARAM buttonState, int x, int y)
 			dir,     // Direction the camera is looking
 			up);     // "Up" direction in 3D space (prevents roll)
 		XMStoreFloat4x4(&viewMatrix2, XMMatrixTranspose(V)); // Transpose for HLSL!
-		
-		score++;
 	}
 	// Save the previous mouse position, so we have it for the future
 	prevMousePos.x = x;
