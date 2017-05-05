@@ -339,3 +339,8 @@ void Emitter::Draw(ID3D11DeviceContext* context, Camera* camera)
 	}
 
 }
+
+float Emitter::GetTimeSinceBeginning()
+{
+	return timeSinceBeginning;
+}

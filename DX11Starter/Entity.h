@@ -29,6 +29,7 @@ public:
 	//ID3D11Buffer * const GetIndexBuffer();
 	//int GetIndexCount();
 	Mesh* GetMesh();
+	void SetMesh(Mesh * );
 	Material* GetMaterial();
 	std::string GetName();
 

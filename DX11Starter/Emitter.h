@@ -57,6 +57,8 @@ public:
 	void CopyOneParticle(int index);
 	void Draw(ID3D11DeviceContext* context, Camera* camera);
 
+	float GetTimeSinceBeginning();
+
 private:
 	// Emission properties
 	int particlesPerSecond;

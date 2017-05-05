@@ -111,6 +111,11 @@ Mesh* Entity::GetMesh()
 	return mesh;
 }
 
+void Entity::SetMesh(Mesh * m)
+{
+	mesh = m;
+}
+
 Material* Entity::GetMaterial()
 {
 	return material;

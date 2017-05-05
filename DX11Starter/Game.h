@@ -90,6 +90,8 @@ private:
 	std::vector<int> count_down;
 	int curr_time;
 	int prev_time;
+	bool entity_vanish;
+	XMFLOAT3 vanish_pos;
 
 	Entity * Ground;
 	Mesh * Ground_Mesh;
@@ -167,6 +169,9 @@ private:
 	ID3D11BlendState* particleBlendState;
 	Emitter* emitter_yellow_explosion;
 	Emitter* emitter_red_explosion;
+	Emitter* emitter_red_explosion2;
+	Emitter* emitter_red_explosion3;
+	Emitter* emitter_red_explosion4;
 	Emitter* emitter_fog;
 
 	ID3D11ShaderResourceView* particleTexture1;
@@ -176,6 +181,8 @@ private:
 	int tempEmitterFlag;
 	int tempResetEmitterFlag;
 	float TimeSinceBeginningForGame;
+
+	std::string Random_Mesh;
 
 };
 

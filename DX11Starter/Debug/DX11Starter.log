@@ -1,19 +1,19 @@
-﻿  Main.cpp
-  Game.cpp
-z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(69): warning C4018: '<': signed/unsigned mismatch
-z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(73): warning C4018: '<': signed/unsigned mismatch
-z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(77): warning C4018: '<': signed/unsigned mismatch
-z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(251): warning C4305: 'argument': truncation from 'double' to 'float'
-z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(252): warning C4305: 'argument': truncation from 'double' to 'float'
-z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(372): warning C4305: 'argument': truncation from 'double' to 'float'
-z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(377): warning C4305: 'argument': truncation from 'double' to 'float'
-z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(617): warning C4018: '<': signed/unsigned mismatch
-z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(689): warning C4018: '<': signed/unsigned mismatch
-z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(697): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(701): warning C4018: '<': signed/unsigned mismatch
-z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(710): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(954): warning C4018: '<': signed/unsigned mismatch
-z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(1214): warning C4018: '<': signed/unsigned mismatch
-  Generating Code...
+﻿  Game.cpp
+z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(72): warning C4018: '<': signed/unsigned mismatch
+z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(76): warning C4018: '<': signed/unsigned mismatch
+z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(80): warning C4018: '<': signed/unsigned mismatch
+z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(168): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(321): warning C4305: 'argument': truncation from 'double' to 'float'
+z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(322): warning C4305: 'argument': truncation from 'double' to 'float'
+z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(442): warning C4305: 'argument': truncation from 'double' to 'float'
+z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(447): warning C4305: 'argument': truncation from 'double' to 'float'
+z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(687): warning C4018: '<': signed/unsigned mismatch
+z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(767): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(771): warning C4018: '<': signed/unsigned mismatch
+z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(780): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(790): warning C4018: '<': signed/unsigned mismatch
+z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(797): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(950): warning C4018: '<': signed/unsigned mismatch
+z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(1213): warning C4018: '<': signed/unsigned mismatch
   DX11Starter.vcxproj -> Z:\IGMProfile\Desktop\Gameplay and Prototyping\FlyingFigures\Flying-Figures\DX11Starter\Debug\DX11Starter.exe
   DX11Starter.vcxproj -> Z:\IGMProfile\Desktop\Gameplay and Prototyping\FlyingFigures\Flying-Figures\DX11Starter\Debug\DX11Starter.pdb (Full PDB)

@@ -40,12 +40,15 @@ Game::Game(HINSTANCE hInstance)
 	tempResetEmitterFlag = 0;
 	//Particles end
 	
+	entity_vanish = false;
+	vanish_pos = XMFLOAT3(0,0,0);
+
 	//sound = 0;
 
 #if defined(DEBUG) || defined(_DEBUG)
 	// Do we want a console window?  Probably only in debug mode
 	CreateConsoleWindow(500, 120, 32, 120);
-	printf("Console window created successfully.  Feel free to printf() here.");
+	printf("Console window created successfully.  Feel free to printf() here. \n");
 #endif
 }
 
@@ -102,6 +105,9 @@ Game::~Game()
 
 	delete emitter_yellow_explosion;
 	delete emitter_red_explosion;
+	delete emitter_red_explosion2;
+	delete emitter_red_explosion3;
+	delete emitter_red_explosion4;
 	delete emitter_fog;
 	//Particles end
 
@@ -157,6 +163,15 @@ void Game::Init()
 	//CreateMaterial();
 	CreateMeshes();
 	CreateEntities(); // the third assignment
+					  
+	/* initialize random seed: */
+	srand(time(NULL));
+
+	/* generate secret number between 0 and 5: */
+	int rand_num = rand() % 6;
+
+	Random_Mesh = mesh_names[rand_num];
+	printf("%s", Random_Mesh.c_str());
 
 	// ----load texture----
 
@@ -200,6 +215,61 @@ void Game::Init()
 
 	// Set up particles
 	emitter_red_explosion = new Emitter(
+		50,								// Max particles
+		50,								// Particles per second
+		1,								// Particle lifetime
+		1.0f,							// Start size	
+		5.0f,							// End size
+		XMFLOAT4(1, 0.1f, 0.1f, 0.1f),	// Start color
+		XMFLOAT4(1, 0.6f, 0.1f, 0),		// End color
+		XMFLOAT3(0, 0, 0),				// Start velocity
+		XMFLOAT3(2, 2, 0),				// Start position
+		XMFLOAT3(10, 10, 0),			// Start acceleration
+		device,
+		particleVS,
+		particlePS,
+		particleTexture1,
+		1,								// Emitter Type e.g. 1 = simple explosion, 2 Particle stream going upwards
+		1.0);							// Emitter Age in seconds
+
+	emitter_red_explosion2 = new Emitter(
+		50,								// Max particles
+		50,								// Particles per second
+		1,								// Particle lifetime
+		1.0f,							// Start size	
+		5.0f,							// End size
+		XMFLOAT4(1, 0.1f, 0.1f, 0.1f),	// Start color
+		XMFLOAT4(1, 0.6f, 0.1f, 0),		// End color
+		XMFLOAT3(0, 0, 0),				// Start velocity
+		XMFLOAT3(2, 2, 0),				// Start position
+		XMFLOAT3(10, 10, 0),			// Start acceleration
+		device,
+		particleVS,
+		particlePS,
+		particleTexture1,
+		1,								// Emitter Type e.g. 1 = simple explosion, 2 Particle stream going upwards
+		1.0);							// Emitter Age in seconds
+
+	emitter_red_explosion3 = new Emitter(
+		50,								// Max particles
+		50,								// Particles per second
+		1,								// Particle lifetime
+		1.0f,							// Start size	
+		5.0f,							// End size
+		XMFLOAT4(1, 0.1f, 0.1f, 0.1f),	// Start color
+		XMFLOAT4(1, 0.6f, 0.1f, 0),		// End color
+		XMFLOAT3(0, 0, 0),				// Start velocity
+		XMFLOAT3(2, 2, 0),				// Start position
+		XMFLOAT3(10, 10, 0),			// Start acceleration
+		device,
+		particleVS,
+		particlePS,
+		particleTexture1,
+		1,								// Emitter Type e.g. 1 = simple explosion, 2 Particle stream going upwards
+		1.0);							// Emitter Age in seconds
+
+
+	emitter_red_explosion4 = new Emitter(
 		50,								// Max particles
 		50,								// Particles per second
 		1,								// Particle lifetime
@@ -656,25 +726,32 @@ void Game::Update(float deltaTime, float totalTime)
 
 
 	TimeSinceBeginningForGame += deltaTime;								// Time passed since beginning of this particle system spawn OR Beginning of game?
-	//printf("\n%f = Game", TimeSinceBeginningForGame);
-
-
-
-
-	//	if (TimeSinceBeginningForGame > 5)									// Execute the code in if block after 5 seconds game has started
-	//	{
-	emitter_yellow_explosion->Update(deltaTime);			// Simple Yellow Red explosion Emitter
-
+	
 	emitter_red_explosion->Update(deltaTime);		// Nomal Explosion Emitter
+	emitter_red_explosion2->Update(deltaTime);		// Nomal Explosion Emitter
+	emitter_red_explosion3->Update(deltaTime);		// Nomal Explosion Emitter
+	emitter_red_explosion4->Update(deltaTime);		// Nomal Explosion Emitter
 
-	emitter_fog->Update(deltaTime);
-	//}
-
-	//if (TimeSinceBeginningForGame > 5 && tempResetEmitterFlag == 0)			// Reposition emitter and for how long to execute the particle system
-	//{
-	//	emitter_red_explosion->ResetEmitter(XMFLOAT3(0, 0, 0), 1.0f);
-	//	tempResetEmitterFlag = 1;
-	//}
+	if (entity_vanish)
+	{
+		if (emitter_red_explosion->GetTimeSinceBeginning() > 1.0f)
+		{
+			emitter_red_explosion->ResetEmitter(vanish_pos, 1.0f);
+		}
+		else if (emitter_red_explosion2->GetTimeSinceBeginning() > 1.0f)
+		{
+			emitter_red_explosion2->ResetEmitter(vanish_pos, 1.0f);
+		}
+		else if(emitter_red_explosion3->GetTimeSinceBeginning() > 1.0f)
+		{
+			emitter_red_explosion3->ResetEmitter(vanish_pos, 1.0f);
+		}
+		else
+		{
+			emitter_red_explosion4->ResetEmitter(vanish_pos, 1.0f);
+		}
+		entity_vanish = false;
+	}
 
 	this->deltaTimeNew = deltaTime;
 
@@ -686,13 +763,6 @@ void Game::Update(float deltaTime, float totalTime)
 	float sinTime = (sin(totalTime * 2)) / 10.0f;
 	float cosTime = (cos(totalTime * 2)) / 10.0f;
 
-	for (int i = 0; i < E.size(); i++) 
-	{
-		E[i]->phy->setTranslation(totalTime - en_pos[i], totalTime - en_pos[i], 0);
-		//E[0]->SetRot(XMFLOAT3(totalTime, 0, 0));
-		E[i]->SetTrans(E[i]->phy->getTranslation()); // rotate at x axis
-		//cout << E[i]->phy->getTranslation().y;
-	}
 	//respawn clicked items after 6 seconds
 	curr_time = totalTime;
 	if (curr_time > prev_time)
@@ -711,104 +781,30 @@ void Game::Update(float deltaTime, float totalTime)
 
 				/* generate secret number between 0 and 5: */
 				int rand_num = rand() % 6;
-				//emitter_red_explosion->ResetEmitter(XMFLOAT3(0, 0, 0), 1.0f);
 
 				E.push_back(new Entity(mesh_list[rand_num], "", pp[E.size()-1]));
 			}
 		}
 	}
-/*
-	
-	E[1]->SetTrans(XMFLOAT3(totalTime, 0, 0));  // move off the screen
-	E[1]->SetScale (XMFLOAT3(sinTime, sinTime, sinTime)); // scale in a sin wave
-	
-	E[2]->SetTrans(XMFLOAT3(3, -3, 0));
-	E[2]->SetScale(XMFLOAT3(cosTime, cosTime, cosTime)); // scale in a cos wave
 
-	E[3]->SetTrans(XMFLOAT3(0, 0, -1));
-	E[3]->SetRot(XMFLOAT3(0, totalTime, 0)); // rotate at y axis
+	for (int i = 0; i < E.size(); i++)
+	{
+		E[i]->phy->setTranslation(totalTime - en_pos[i], totalTime - en_pos[i], 0);
+		//E[0]->SetRot(XMFLOAT3(totalTime, 0, 0));
+		E[i]->SetTrans(E[i]->phy->getTranslation()); // rotate at x axis
+													 //cout << E[i]->phy->getTranslation().y;
 
-	E[4]->SetTrans(XMFLOAT3(0, 0, 0));
-	E[4]->SetRot(XMFLOAT3(0, 0, totalTime)); // rotate at z axis according
-	// ---assignment 3 ------
-	
-
-	E[5]->SetTrans(XMFLOAT3(1, 1, 0));
-	E[6]->SetRot(XMFLOAT3(0, totalTime, 0));
-	E[7]->SetTrans(XMFLOAT3(2, 0, 0));
-
-	E[8]->SetTrans(XMFLOAT3(-2, 1, -2));
-	E[8]->SetRot(XMFLOAT3(1, 1, 0));
+		srand(time(NULL));
+		int rand_num = rand() % 6;
 
 
-	E[9]->SetTrans(XMFLOAT3(-2, 0, 0));
+		if (E[i]->phy->getTranslation().x > 0 && E[i]->phy->getTranslation().y < -9.4f)
+		{
+			E[i]->SetMesh(mesh_list[rand_num]);
+		}
+	}
 
-	E[10]->SetTrans(XMFLOAT3(0, -1, 0));
-*/
 	Ground->SetTrans(XMFLOAT3(0, -2, 1));
-	
-	
-	/*
-	E[0]->phy->setTranslation(totalTime - 3.65, totalTime, 0);
-	E[0]->phy->setScale(1, 1, 1);
-	E[0]->phy->setRotate(0, 0, 0);
-	E[0]->SetTrans(E[0]->phy->getTranslation());
-	//	e[1] = new Entity(c);
-
-	E[1]->phy->setTranslation(totalTime - 3.65 + 2, totalTime + 2, 0);
-	E[1]->phy->setScale(1, 1, 1);
-	E[1]->phy->setRotate(0, 0, 0);
-
-
-	E[2]->phy->setTranslation(totalTime - 3.65 + 4, totalTime + 4, 0);
-	E[2]->phy->setScale(1, 1, 1);
-	E[2]->phy->setRotate(0, 0, 0);
-
-	E[3]->phy->setTranslation(totalTime - 3.65 + 6, totalTime + 6, 0);
-	E[3]->phy->setScale(1, 1, 1);
-	E[3]->phy->setRotate(0, 0, 0);
-	//	e[1] = new Entity(c);
-	E[4]->phy->setTranslation(totalTime - 3.65 +8, totalTime - 2, 0);
-	E[4]->phy->setScale(1, 1, 1);
-	E[4]->phy->setRotate(0, 0, 0);
-
-	E[5]->phy->setTranslation(totalTime - 3.65+10, totalTime - 4, 0);
-	E[5]->phy->setScale(1, 1, 1);
-	E[5]->phy->setRotate(0, 0, 0);
-
-	E[6]->phy->setTranslation(totalTime - 3.65+12, totalTime, 0);
-	E[6]->phy->setScale(1, 1, 1);
-	E[6]->phy->setRotate(0, 0, 0);
-	//	e[1] = new Entity(c);
-
-	E[7]->phy->setTranslation(totalTime - 3.65 + 14, totalTime + 2, 0);
-	E[7]->phy->setScale(1, 1, 1);
-	E[7]->phy->setRotate(0, 0, 0);
-
-
-	E[8]->phy->setTranslation(totalTime - 3.65 + 16, totalTime + 4, 0);
-	E[8]->phy->setScale(1, 1, 1);
-	E[8]->phy->setRotate(0, 0, 0);
-
-	E[9]->phy->setTranslation(totalTime - 3.65 + 18, totalTime + 6, 0);
-	E[9]->phy->setScale(1, 1, 1);
-	E[9]->phy->setRotate(0, 0, 0);
-	//	e[1] = new Entity(c);
-	E[10]->phy->setTranslation(totalTime - 3.65 +20, totalTime - 2, 0);
-	E[10]->phy->setScale(1, 1, 1);
-	E[10]->phy->setRotate(0, 0, 0);
-
-	E[11]->phy->setTranslation(totalTime - 3.65 +22, totalTime - 4, 0);
-	E[11]->phy->setScale(1, 1, 1);
-	E[11]->phy->setRotate(0, 0, 0);
-	*/
-	
-
-
-
-	
-
-
 
 }
 
@@ -1125,9 +1121,12 @@ void Game::Draw(float deltaTime, float totalTime)
 		context->OMSetDepthStencilState(particleDepthState, 0);			// No depth WRITING
 
 																		// Draw the emitter
-		emitter_yellow_explosion->Draw(context, c);
+		//emitter_yellow_explosion->Draw(context, c);
 
 		emitter_red_explosion->Draw(context, c);
+		emitter_red_explosion2->Draw(context, c);
+		emitter_red_explosion3->Draw(context, c);
+		emitter_red_explosion4->Draw(context, c);
 
 		//emitter_fog->Draw(context, c);
 		// Particle states end
@@ -1218,6 +1217,7 @@ void Game::OnMouseDown(WPARAM buttonState, int x, int y)
 				{
 					filterDistance = distance;
 					nearestEntity = entity;
+					vanish_pos = nearestEntity->getPos();
 					remove_pos = temp_pos;
 					dir = XMVectorSet(entity->phy->getTranslation().x, entity->phy->getTranslation().y - 1, entity->phy->getTranslation().z + 2, 0);
 					ent_clicked = true;
@@ -1225,10 +1225,9 @@ void Game::OnMouseDown(WPARAM buttonState, int x, int y)
 		}
 	}
 
-	if (ent_clicked)
+	if (ent_clicked && nearestEntity->GetMesh()->GetName() == Random_Mesh)
 	{
 		//nearestEntity->SetTrans(XMFLOAT3(20.0f,0.0f,0.0f));
-		printf("\n%s",nearestEntity->GetMesh()->GetName().c_str());
 		delete E[remove_pos];
 		E.erase(E.begin() + remove_pos);
 		en_pos.push_back(en_pos[remove_pos]);
@@ -1237,6 +1236,8 @@ void Game::OnMouseDown(WPARAM buttonState, int x, int y)
 		pp.erase(pp.begin() + remove_pos);
 		count_down.push_back(6);
 		
+		entity_vanish = true;
+
 		score++;
 	}
 	else
