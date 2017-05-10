@@ -139,10 +139,14 @@ private:
 	// adding sound!
 	// Sound* sound;
 
-	UI *scoreText[1];
+	UI *scoreText[4];
 	//UI *instruction;
 	int score;
 	wchar_t showScore[256];
+
+	//wchar_t instruction[256];
+	wchar_t * instruction;
+	wchar_t * writable;
 
 	//	Scenes *scene[2];
 	UI * startText[2];
@@ -182,7 +186,7 @@ private:
 	int tempResetEmitterFlag;
 	float TimeSinceBeginningForGame;
 
-	std::string Random_Mesh;
+	string Random_Mesh;
 
 };
 

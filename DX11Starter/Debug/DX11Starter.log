@@ -1,19 +1,27 @@
 ﻿  Game.cpp
-z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(72): warning C4018: '<': signed/unsigned mismatch
-z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(76): warning C4018: '<': signed/unsigned mismatch
-z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(80): warning C4018: '<': signed/unsigned mismatch
-z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(168): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(321): warning C4305: 'argument': truncation from 'double' to 'float'
-z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(322): warning C4305: 'argument': truncation from 'double' to 'float'
-z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(442): warning C4305: 'argument': truncation from 'double' to 'float'
-z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(447): warning C4305: 'argument': truncation from 'double' to 'float'
-z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(687): warning C4018: '<': signed/unsigned mismatch
-z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(767): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(771): warning C4018: '<': signed/unsigned mismatch
-z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(780): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(790): warning C4018: '<': signed/unsigned mismatch
-z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(797): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(950): warning C4018: '<': signed/unsigned mismatch
-z:\igmprofile\desktop\gameplay and prototyping\flyingfigures\flying-figures\dx11starter\game.cpp(1213): warning C4018: '<': signed/unsigned mismatch
-  DX11Starter.vcxproj -> Z:\IGMProfile\Desktop\Gameplay and Prototyping\FlyingFigures\Flying-Figures\DX11Starter\Debug\DX11Starter.exe
-  DX11Starter.vcxproj -> Z:\IGMProfile\Desktop\Gameplay and Prototyping\FlyingFigures\Flying-Figures\DX11Starter\Debug\DX11Starter.pdb (Full PDB)
+z:\igmprofile\documents\740\milestone 4\0509\flying-figures\dx11starter\game.cpp(72): warning C4018: '<': signed/unsigned mismatch
+z:\igmprofile\documents\740\milestone 4\0509\flying-figures\dx11starter\game.cpp(76): warning C4018: '<': signed/unsigned mismatch
+z:\igmprofile\documents\740\milestone 4\0509\flying-figures\dx11starter\game.cpp(80): warning C4018: '<': signed/unsigned mismatch
+z:\igmprofile\documents\740\milestone 4\0509\flying-figures\dx11starter\game.cpp(172): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+z:\igmprofile\documents\740\milestone 4\0509\flying-figures\dx11starter\game.cpp(325): warning C4305: 'argument': truncation from 'double' to 'float'
+z:\igmprofile\documents\740\milestone 4\0509\flying-figures\dx11starter\game.cpp(326): warning C4305: 'argument': truncation from 'double' to 'float'
+z:\igmprofile\documents\740\milestone 4\0509\flying-figures\dx11starter\game.cpp(467): warning C4305: 'argument': truncation from 'double' to 'float'
+z:\igmprofile\documents\740\milestone 4\0509\flying-figures\dx11starter\game.cpp(472): warning C4305: 'argument': truncation from 'double' to 'float'
+z:\igmprofile\documents\740\milestone 4\0509\flying-figures\dx11starter\game.cpp(712): warning C4018: '<': signed/unsigned mismatch
+z:\igmprofile\documents\740\milestone 4\0509\flying-figures\dx11starter\game.cpp(792): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+z:\igmprofile\documents\740\milestone 4\0509\flying-figures\dx11starter\game.cpp(796): warning C4018: '<': signed/unsigned mismatch
+z:\igmprofile\documents\740\milestone 4\0509\flying-figures\dx11starter\game.cpp(805): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+z:\igmprofile\documents\740\milestone 4\0509\flying-figures\dx11starter\game.cpp(815): warning C4018: '<': signed/unsigned mismatch
+z:\igmprofile\documents\740\milestone 4\0509\flying-figures\dx11starter\game.cpp(822): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+z:\igmprofile\documents\740\milestone 4\0509\flying-figures\dx11starter\game.cpp(975): warning C4018: '<': signed/unsigned mismatch
+z:\igmprofile\documents\740\milestone 4\0509\flying-figures\dx11starter\game.cpp(1265): warning C4018: '<': signed/unsigned mismatch
+c:\program files (x86)\microsoft visual studio 14.0\vc\include\xutility(2372): warning C4996: 'std::copy::_Unchecked_iterators::_Deprecate': Call to 'std::copy' with parameters that may be unsafe - this call relies on the caller to check that the passed values are correct. To disable this warning, use -D_SCL_SECURE_NO_WARNINGS. See documentation on how to use Visual C++ 'Checked Iterators'
+  c:\program files (x86)\microsoft visual studio 14.0\vc\include\xutility(2372): note: see declaration of 'std::copy::_Unchecked_iterators::_Deprecate'
+  z:\igmprofile\documents\740\milestone 4\0509\flying-figures\dx11starter\game.cpp(348): note: see reference to function template instantiation '_OutIt *std::copy<std::_String_iterator<std::_String_val<std::_Simple_types<wchar_t>>>,wchar_t*>(_InIt,_InIt,_OutIt)' being compiled
+          with
+          [
+              _OutIt=wchar_t *,
+              _InIt=std::_String_iterator<std::_String_val<std::_Simple_types<wchar_t>>>
+          ]
+  DX11Starter.vcxproj -> Z:\IGMProfile\Documents\740\milestone 4\0509\Flying-Figures\DX11Starter\Debug\DX11Starter.exe
+  DX11Starter.vcxproj -> Z:\IGMProfile\Documents\740\milestone 4\0509\Flying-Figures\DX11Starter\Debug\DX11Starter.pdb (Full PDB)

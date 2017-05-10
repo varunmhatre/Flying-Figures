@@ -133,7 +133,11 @@ Game::~Game()
 	Sampler_Shadow->Release();
 	delete VS_Shadow;
 
-	delete scoreText[0];
+	for(int i = 0;i<4;i++)
+	delete scoreText[i];
+	
+	delete writable;
+
 	delete startText[0];
 	delete startText[1];
 
@@ -335,7 +339,28 @@ void Game::Init()
 	score = 0;
 	swprintf_s(showScore, L"%d", score);
 
+	
+	wstring widestr = wstring(Random_Mesh.begin(), Random_Mesh.end());
+
+
+	writable = new wchar_t[widestr.size() + 1];
+	//wchar_t * writable;
+	copy(widestr.begin(), widestr.end(), writable);
+	writable[widestr.size()] = '\0';
+	//copy(widestr.begin(), widestr.end(), instruction);
+
+	instruction = writable;
+
+	//swprintf_s(instruction, 256, L"%s", L"fff");
+	//wcout << instruction << endl;
+    scoreText[2] = new UI(device, context, L"Score: ", XMFLOAT4(+0.0f, +0.0f, +110.0f, 110.0f));
 	scoreText[0] = new UI(device, context, showScore, XMFLOAT4(+0.0f, +0.0f, +110.0f, 110.0f));
+
+	scoreText[3] = new UI(device, context, L"Please choose ", XMFLOAT4(+200.0f, +0.0f, +110.0f, 110.0f));
+	scoreText[1] = new UI(device, context, instruction, XMFLOAT4(+200.0f, +0.0f, +110.0f, 110.0f));
+	
+	
+	
 
 	startText[0] = new UI(device, context, L"FLYING FIGURES", XMFLOAT4(+200.0f, +100.0f, +110.0f, 110.0f));
 	startText[1] = new UI(device, context, L"Press enter to play", XMFLOAT4(+200.0f, +150.0f, +110.0f, 110.0f));
@@ -468,7 +493,7 @@ void Game::Init()
 
 	XMStoreFloat4x4(&projectionMatrix2, XMMatrixTranspose(P));
 
-	
+	//delete writable;
 	
 	
 }
@@ -1107,13 +1132,40 @@ void Game::Draw(float deltaTime, float totalTime)
 		swprintf_s(showScore, L"%d", score);
 
 		
+		scoreText[2]->getSpriteBatch()->Begin();
+		scoreText[2]->getSpriteFont()->DrawString(
+			scoreText[2]->getSpriteBatch(),
+			L"Score: ",
+			XMFLOAT2(10, 120));
+
+		scoreText[2]->getSpriteBatch()->End();
+
+
 		scoreText[0]->getSpriteBatch()->Begin();
 		scoreText[0]->getSpriteFont()->DrawString(
 			scoreText[0]->getSpriteBatch(),
 			showScore,
-			XMFLOAT2(10, 120));
+			XMFLOAT2(200, 120));
 
 		scoreText[0]->getSpriteBatch()->End();
+
+		//cout << instruction[0];
+
+		scoreText[3]->getSpriteBatch()->Begin();
+		scoreText[3]->getSpriteFont()->DrawString(
+			scoreText[3]->getSpriteBatch(),
+			L"Please choose ",
+			XMFLOAT2(450, 90));
+
+		scoreText[3]->getSpriteBatch()->End();
+
+		scoreText[1]->getSpriteBatch()->Begin();
+		scoreText[1]->getSpriteFont()->DrawString(
+			scoreText[1]->getSpriteBatch(),
+			instruction,
+			XMFLOAT2(800, 90));
+
+		scoreText[1]->getSpriteBatch()->End();
 		
 		// Particle states
 		float blend[4] = { 1,1,1,1 };
