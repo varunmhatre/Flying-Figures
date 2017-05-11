@@ -20,6 +20,7 @@ Entity::Entity(Mesh* m, std::string s, Physics *ph)
 	XMStoreFloat4x4(&world_matrix, XMMatrixTranspose(XMMatrixIdentity())); //transpose to HLSL
 	name = s;
 	phy = ph;
+	isdecal = false;
 }
 
 Entity::~Entity()
@@ -51,6 +52,8 @@ void Entity::SetTrans(XMFLOAT3 p)
 {
 	position = p;
 	XMStoreFloat4x4(&world_matrix, XMMatrixTranspose(GetTrans()));
+	decalsPos = p;
+	decalsPos.z = p.z - 2;
 
 }
 
@@ -62,6 +65,12 @@ std::string Entity::GetName()
 XMFLOAT3 Entity::getPos()
 {
 	return position;
+}
+
+
+XMFLOAT3 Entity::getdecalsPos()
+{
+	return decalsPos;
 }
 
 // get and set scale matrix

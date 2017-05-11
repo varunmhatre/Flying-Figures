@@ -466,7 +466,7 @@ void Game::Init()
 	
 	directionalLight.AmbientColor = XMFLOAT4(0.1, 0.1, 0.1, 0.1);
 	directionalLight.DiffuseColor = XMFLOAT4(0, 0, 1, 1);  // blue
-	directionalLight.Direction = XMFLOAT3(1, -1, 0);
+	directionalLight.Direction = XMFLOAT3(0,0,1);
 	
 
 	directionalLight2.AmbientColor = XMFLOAT4(0.1, 0.1, 0.1, 0.1);
@@ -495,7 +495,7 @@ void Game::Init()
 
 	//delete writable;
 	
-	
+	//decals = false;
 }
 
 // --------------------------------------------------------
@@ -808,6 +808,8 @@ void Game::Update(float deltaTime, float totalTime)
 				int rand_num = rand() % 6;
 
 				E.push_back(new Entity(mesh_list[rand_num], "", pp[E.size()-1]));
+				
+
 			}
 		}
 	}
@@ -818,18 +820,27 @@ void Game::Update(float deltaTime, float totalTime)
 		//E[0]->SetRot(XMFLOAT3(totalTime, 0, 0));
 		E[i]->SetTrans(E[i]->phy->getTranslation()); // rotate at x axis
 													 //cout << E[i]->phy->getTranslation().y;
+	
 
 		srand(time(NULL));
 		int rand_num = rand() % 6;
 
 
+
 		if (E[i]->phy->getTranslation().x > 0 && E[i]->phy->getTranslation().y < -9.4f)
 		{
 			E[i]->SetMesh(mesh_list[rand_num]);
+			
+			E[i]->isdecal = false;
+		
 		}
+		
+		
 	}
 
 	Ground->SetTrans(XMFLOAT3(0, -2, 1));
+
+	
 
 }
 
@@ -974,6 +985,23 @@ void Game::Draw(float deltaTime, float totalTime)
 		// draw the entity
 		for (int i = 0; i < E.size(); i++)
 		{
+
+			//cout << E[i]->getdecalsPos().z << E[i]->getPos().z << endl;
+			if (E[i]->isdecal) {
+				//cout << "a";
+				XMVECTOR dir = XMVectorSet(0, 0, 1, 0);
+				XMVECTOR pos = XMVectorSet(E[i]->getdecalsPos().x, E[i]->getdecalsPos().y, E[i]->getdecalsPos().z, 0);
+				XMVECTOR up = XMVectorSet(0, 1, 0, 0);
+				XMMATRIX V = XMMatrixLookToLH(
+					pos,     // The position of the "camera"
+					dir,     // Direction the camera is looking
+					up);     // "Up" direction in 3D space (prevents roll)
+				XMStoreFloat4x4(&viewMatrix2, XMMatrixTranspose(V));
+
+				
+			}
+			
+			
 
 
 			ID3D11Buffer *  vb = E[i]->GetMesh()->GetVertexBuffer();
@@ -1271,8 +1299,10 @@ void Game::OnMouseDown(WPARAM buttonState, int x, int y)
 					nearestEntity = entity;
 					vanish_pos = nearestEntity->getPos();
 					remove_pos = temp_pos;
-					dir = XMVectorSet(entity->phy->getTranslation().x, entity->phy->getTranslation().y - 1, entity->phy->getTranslation().z + 2, 0);
+					//dir = XMVectorSet(entity->phy->getTranslation().x, entity->phy->getTranslation().y - 1, entity->phy->getTranslation().z + 2, 0);
+					//dir = XMVectorSet(0,0,1, 0);
 					ent_clicked = true;
+					entity->isdecal = true;
 				}
 		}
 	}
@@ -1291,17 +1321,14 @@ void Game::OnMouseDown(WPARAM buttonState, int x, int y)
 		entity_vanish = true;
 
 		score++;
+		
 	}
-	else
-	{
-		XMVECTOR pos = XMVectorSet(0, 1, -2, 0);
-
-		XMVECTOR up = XMVectorSet(0, 1, 0, 0);
-		XMMATRIX V = XMMatrixLookToLH(
-			pos,     // The position of the "camera"
-			dir,     // Direction the camera is looking
-			up);     // "Up" direction in 3D space (prevents roll)
-		XMStoreFloat4x4(&viewMatrix2, XMMatrixTranspose(V)); // Transpose for HLSL!
+	
+	else{
+		//XMVECTOR pos = XMVectorSet(0, 1, -2, 0);
+		
+		
+// Transpose for HLSL!
 	}
 	// Save the previous mouse position, so we have it for the future
 	prevMousePos.x = x;

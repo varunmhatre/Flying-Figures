@@ -79,7 +79,8 @@ float4 main(VertexToPixel input) : SV_TARGET
 
     float4 textureColor = Texture.Sample(Sampler, input.uv);
 
-	if ((saturate(projectTexCoord.x) == projectTexCoord.x) && (saturate(projectTexCoord.y) == projectTexCoord.y))
+	
+if ((saturate(projectTexCoord.x) == projectTexCoord.x) && (saturate(projectTexCoord.y) == projectTexCoord.y))
 	{
 
 		// Sample the color value from the projection texture using the sampler at the projected texture coordinate location.
@@ -89,7 +90,6 @@ float4 main(VertexToPixel input) : SV_TARGET
 		if (projectionColor.x != 1 && projectionColor.y != 1 && projectionColor.z != 1)
 			textureColor = projectionColor;
 	}
-
 	
 	// float4 second_directional = directionallightcalculation(input.normal, directionalLight2);
 	 
@@ -103,6 +103,8 @@ float4 main(VertexToPixel input) : SV_TARGET
 	float lightAmountDL0 = saturate(dot(input.normal, -normalize(directionalLight.Direction)));
 
 	float4 dlight0 = directionalLight.DiffuseColor* lightAmountDL0*textureColor;
+
+
 
 
 

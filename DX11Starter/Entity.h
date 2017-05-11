@@ -37,6 +37,10 @@ public:
 
 	Physics *phy;
 
+	XMFLOAT3 getdecalsPos();
+
+	bool isdecal;
+
 private:
 
 	XMFLOAT4X4 world_matrix; // world matrix
@@ -50,5 +54,7 @@ private:
 
 	Material * material; // keep track of which material it will be using
 	std::string name;
+
+	XMFLOAT3 decalsPos;
 };
 

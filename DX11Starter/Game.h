@@ -155,8 +155,8 @@ private:
 
 	std::vector<Physics *> pp;
 
-	XMVECTOR dir;
-
+	//XMVECTOR dir;
+	//XMVECTOR pos;
 
 	//for skybox
 	ID3D11ShaderResourceView* skySRV;
@@ -187,6 +187,8 @@ private:
 	float TimeSinceBeginningForGame;
 
 	string Random_Mesh;
+
+	//bool decals;
 
 };
 
