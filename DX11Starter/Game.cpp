@@ -141,6 +141,8 @@ Game::~Game()
 	delete startText[0];
 	delete startText[1];
 
+	delete endText[0];
+
 	skySRV->Release();
 	rsSky->Release();
 	dsSky->Release();
@@ -359,7 +361,7 @@ void Game::Init()
 	scoreText[3] = new UI(device, context, L"Please choose ", XMFLOAT4(+200.0f, +0.0f, +110.0f, 110.0f));
 	scoreText[1] = new UI(device, context, instruction, XMFLOAT4(+200.0f, +0.0f, +110.0f, 110.0f));
 	
-	
+	endText[0] = new UI(device, context, L"Game Over", XMFLOAT4(+200.0f, +0.0f, +110.0f, 110.0f));
 	
 
 	startText[0] = new UI(device, context, L"FLYING FIGURES", XMFLOAT4(+200.0f, +100.0f, +110.0f, 110.0f));
@@ -925,7 +927,17 @@ void Game::RenderShadowMap()
 // --------------------------------------------------------
 void Game::Draw(float deltaTime, float totalTime)
 {
+
+
+
 	if (level == 0) {
+		const float color[4] = { 0,0,0, 0.0f };
+		context->ClearRenderTargetView(backBufferRTV, color);
+		context->ClearDepthStencilView(
+			depthStencilView,
+			D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
+			1.0f,
+			0);
 		startText[0]->getSpriteBatch()->Begin();
 		//scoreText->getSpriteBatch()->Draw(fontSRV, scoreText->getRECT());
 		startText[0]->getSpriteFont()->DrawString(
@@ -1216,14 +1228,32 @@ void Game::Draw(float deltaTime, float totalTime)
 		float factors[4] = { 1,1,1,1 };
 		context->OMSetBlendState(0, factors, 0xFFFFFFFF);
 
-
-
-
-
-
 		// Present the back buffer to the user
 		//  - Puts the final frame we're drawing into the window so the user can see it
 		//  - Do this exactly ONCE PER FRAME (always at the very end of the frame)
+		swapChain->Present(0, 0);
+	}
+
+	if (score < 0) level = 2;
+	if (level==2) {
+
+		const float color[4] = { 0,0,0, 0.0f };
+		context->ClearRenderTargetView(backBufferRTV, color);
+		context->ClearDepthStencilView(
+			depthStencilView,
+			D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
+			1.0f,
+			0);
+
+
+		endText[0]->getSpriteBatch()->Begin();
+		//scoreText->getSpriteBatch()->Draw(fontSRV, scoreText->getRECT());
+		endText[0]->getSpriteFont()->DrawString(
+			endText[0]->getSpriteBatch(),
+			L"Game Over",
+			XMFLOAT2(80, 120));
+
+		endText[0]->getSpriteBatch()->End();
 		swapChain->Present(0, 0);
 	}
 }
@@ -1324,11 +1354,14 @@ void Game::OnMouseDown(WPARAM buttonState, int x, int y)
 		
 	}
 	
-	else{
+	else if (ent_clicked && nearestEntity->GetMesh()->GetName() != Random_Mesh) {
 		//XMVECTOR pos = XMVectorSet(0, 1, -2, 0);
-		
+		score--;
 		
 // Transpose for HLSL!
+	}
+	else {
+
 	}
 	// Save the previous mouse position, so we have it for the future
 	prevMousePos.x = x;

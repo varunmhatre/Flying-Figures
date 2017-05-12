@@ -151,6 +151,8 @@ private:
 	//	Scenes *scene[2];
 	UI * startText[2];
 
+	UI * endText[1];
+
 	int level;
 
 	std::vector<Physics *> pp;
