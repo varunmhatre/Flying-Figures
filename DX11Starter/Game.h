@@ -30,6 +30,7 @@ public:
 	void OnResize();
 	void Update(float deltaTime, float totalTime);
 	void Draw(float deltaTime, float totalTime);
+	void Highlight();
 
 	// Overridden mouse input helper methods
 	void OnMouseDown (WPARAM buttonState, int x, int y);
@@ -91,7 +92,7 @@ private:
 	int curr_time;
 	int prev_time;
 	bool entity_vanish;
-	XMFLOAT3 vanish_pos;
+	XMFLOAT3 vanish_location;
 
 	Entity * Ground;
 	Mesh * Ground_Mesh;
@@ -157,7 +158,7 @@ private:
 
 	std::vector<Physics *> pp;
 
-	//XMVECTOR dir;
+	XMVECTOR dir;
 	//XMVECTOR pos;
 
 	//for skybox
@@ -191,6 +192,22 @@ private:
 	string Random_Mesh;
 
 	//bool decals;
+
+	// for detecting the cursor
+	BoundingFrustum camFrustum;
+	XMFLOAT4X4 proj;
+	XMFLOAT3 tempRayDir;
+	XMMATRIX view;
+	XMVECTOR rayDir;
+	XMVECTOR rayPos;
+	bool mouseMove;
+
+	// for the outline hightlight
+
+	// Shader resource view for outline
+	ID3D11RasterizerState* RS_Outline;
+	SimpleVertexShader * VS_Outline;
+	SimplePixelShader * PS_Outline;
 
 };
 

@@ -41,7 +41,7 @@ Game::Game(HINSTANCE hInstance)
 	//Particles end
 	
 	entity_vanish = false;
-	vanish_pos = XMFLOAT3(0,0,0);
+	vanish_location = XMFLOAT3(0,0,0);
 
 	//sound = 0;
 
@@ -147,6 +147,11 @@ Game::~Game()
 	rsSky->Release();
 	dsSky->Release();
 
+	// clear the outline Rasterizer View
+	RS_Outline->Release();
+	delete VS_Outline;
+	delete PS_Outline;
+
 	
 }
 
@@ -159,7 +164,7 @@ void Game::Init()
 	// Helper methods for loading shaders, creating some basic
 	// geometry to draw and some simple camera matrices.
 	//  - You'll be expanding and/or replacing these later
-
+	mouseMove = false;
 	curr_time = 0;
 	prev_time = 0;
 	shadowMapSize = 1024;
@@ -483,6 +488,14 @@ void Game::Init()
 
 	//set up sky
 
+	// set up rasterizer state for outline
+	D3D11_RASTERIZER_DESC RS_Outline_Desc = {};
+	RS_Outline_Desc.FillMode = D3D11_FILL_SOLID;
+	RS_Outline_Desc.CullMode = D3D11_CULL_FRONT;
+	RS_Outline_Desc.DepthClipEnable = true;
+	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	device->CreateRasterizerState(&RS_Outline_Desc, &RS_Outline);
+
 
 
 	level = 0;
@@ -553,7 +566,14 @@ void Game::LoadShaders()
 	if (!skyPS->LoadShaderFile(L"Debug/SkyPS.cso"))
 		skyPS->LoadShaderFile(L"SkyPS.cso");
 
-	// ??? PS_Shadow = new SimplePixelShader(device, context);  // no pixel shader??
+	// load outline shaders
+	VS_Outline = new SimpleVertexShader(device, context);
+	if (!VS_Outline->LoadShaderFile(L"Debug/VS_Outline.cso"))
+		VS_Outline->LoadShaderFile(L"VS_Outline.cso");
+
+	PS_Outline = new SimplePixelShader(device, context);
+	if (!PS_Outline->LoadShaderFile(L"Debug/PS_Outline.cso"))
+		PS_Outline->LoadShaderFile(L"PS_Outline.cso");
 	
 }
 
@@ -763,19 +783,19 @@ void Game::Update(float deltaTime, float totalTime)
 	{
 		if (emitter_red_explosion->GetTimeSinceBeginning() > 1.0f)
 		{
-			emitter_red_explosion->ResetEmitter(vanish_pos, 1.0f);
+			emitter_red_explosion->ResetEmitter(vanish_location, 1.0f);
 		}
 		else if (emitter_red_explosion2->GetTimeSinceBeginning() > 1.0f)
 		{
-			emitter_red_explosion2->ResetEmitter(vanish_pos, 1.0f);
+			emitter_red_explosion2->ResetEmitter(vanish_location, 1.0f);
 		}
 		else if(emitter_red_explosion3->GetTimeSinceBeginning() > 1.0f)
 		{
-			emitter_red_explosion3->ResetEmitter(vanish_pos, 1.0f);
+			emitter_red_explosion3->ResetEmitter(vanish_location, 1.0f);
 		}
 		else
 		{
-			emitter_red_explosion4->ResetEmitter(vanish_pos, 1.0f);
+			emitter_red_explosion4->ResetEmitter(vanish_location, 1.0f);
 		}
 		entity_vanish = false;
 	}
@@ -1009,13 +1029,14 @@ void Game::Draw(float deltaTime, float totalTime)
 					dir,     // Direction the camera is looking
 					up);     // "Up" direction in 3D space (prevents roll)
 				XMStoreFloat4x4(&viewMatrix2, XMMatrixTranspose(V));
+			
+			}
 
-				
+			if (mouseMove)
+			{
+				Highlight();
 			}
 			
-			
-
-
 			ID3D11Buffer *  vb = E[i]->GetMesh()->GetVertexBuffer();
 			ID3D11Buffer *  ib = E[i]->GetMesh()->GetIndexBuffer();
 
@@ -1258,6 +1279,66 @@ void Game::Draw(float deltaTime, float totalTime)
 	}
 }
 
+void Game::Highlight()
+{
+	BoundingOrientedBox entBox;
+	float distance;
+	bool hio = false;
+
+	Entity* nearestEntity;
+
+	std::vector<int> remove_pos_vector;
+	for (size_t i = 0; i < E.size(); i++)
+	{
+		E[i]->GetMesh()->getOBB().Transform(entBox, XMMatrixTranspose(XMLoadFloat4x4(&E[i]->GetMatrix())));
+		if (camFrustum.Contains(entBox) != ContainmentType::DISJOINT)
+		{
+			if (entBox.Intersects(rayPos, rayDir, distance))
+			{
+				remove_pos_vector.push_back(i);
+				nearestEntity = E[i];
+				hio = true;
+			}
+		}
+	}
+	if (hio)
+	{
+		// draw the outline
+		ID3D11Buffer *  vb = nearestEntity->GetMesh()->GetVertexBuffer();
+		ID3D11Buffer *  ib = nearestEntity->GetMesh()->GetIndexBuffer();
+
+		UINT stride = sizeof(Vertex);
+		UINT offset = 0;
+
+		context->IASetVertexBuffers(0, 1, &vb, &stride, &offset);
+		context->IASetIndexBuffer(ib, DXGI_FORMAT_R32_UINT, 0);
+
+
+		// Set up outline VS shader
+		VS_Outline->SetShader();
+		VS_Outline->SetMatrix4x4("world", nearestEntity->GetMatrix());
+		VS_Outline->SetMatrix4x4("view", c->GetViewMatrix());
+		VS_Outline->SetMatrix4x4("projection", c->GetProjectionMatrix());
+		VS_Outline->CopyAllBufferData();
+
+		// Set up outline PS shader
+		PS_Outline->CopyAllBufferData();
+		PS_Outline->SetShader();
+
+		context->RSSetState(RS_Outline);
+
+		// Finally do the actual drawing
+		context->DrawIndexed(nearestEntity->GetMesh()->GetIndexCount(), 0, 0);
+
+		// reset the rasterizer state
+		context->RSSetState(0);
+		context->OMSetDepthStencilState(0, 0);
+
+
+		hio = false;
+	}
+}
+
 
 #pragma region Mouse Input
 
@@ -1287,7 +1368,10 @@ void Game::OnMouseDown(WPARAM buttonState, int x, int y)
 	BoundingOrientedBox entBox;
 	float distance;
 
-	std::vector<Entity*> entityQueue;
+	bool ent_clicked = false;
+	Entity* nearestEntity;
+	int remove_pos;
+
 
 	std::vector<int> remove_pos_vector;
 	for (size_t i = 0; i < E.size(); i++)
@@ -1297,45 +1381,45 @@ void Game::OnMouseDown(WPARAM buttonState, int x, int y)
 		{
 			if (entBox.Intersects(rayPos, rayDir, distance))
 			{
-				remove_pos_vector.push_back(i);
-				entityQueue.push_back(E[i]);
+				nearestEntity = E[i];
+				vanish_location = nearestEntity->getPos();
+				remove_pos = i;
+				dir = XMVectorSet(nearestEntity->phy->getTranslation().x, nearestEntity->phy->getTranslation().y - 1, nearestEntity->phy->getTranslation().z + 2, 0);
+				ent_clicked = true;
+				E[i]->isdecal = true;
 			}
 		}
 	}
 
-	bool ent_clicked = false;
-	Entity* nearestEntity;
-	int remove_pos;
-	float filterDistance = FLT_MAX;
 
-	for (size_t i = 0; i < entityQueue.size(); ++i)
-	{
-		Entity* entity = entityQueue[i];
-		int temp_pos = remove_pos_vector[i];
+	//for (size_t i = 0; i < entityQueue.size(); ++i)
+	//{
+	//	Entity* entity = entityQueue[i];
+	//	int temp_pos = remove_pos_vector[i];
 
-		XMMATRIX entMatrix = XMMatrixInverse(NULL, XMMatrixTranspose(XMLoadFloat4x4(&entity->GetMatrix())));
-		XMVECTOR rayPosLocal = XMVector3TransformCoord(rayPos, entMatrix);
-		XMVECTOR rayDirLocal = XMVector3Normalize(XMVector3TransformNormal(rayDir, entMatrix));
+	//	XMMATRIX entMatrix = XMMatrixInverse(NULL, XMMatrixTranspose(XMLoadFloat4x4(&entity->GetMatrix())));
+	//	XMVECTOR rayPosLocal = XMVector3TransformCoord(rayPos, entMatrix);
+	//	XMVECTOR rayDirLocal = XMVector3Normalize(XMVector3TransformNormal(rayDir, entMatrix));
 
-		UINT* faces = entity->GetMesh()->GetFaces(); //indices
-		Vertex* verts = entity->GetMesh()->GetVertices();
+	//	UINT* faces = entity->GetMesh()->GetFaces(); //indices
+	//	Vertex* verts = entity->GetMesh()->GetVertices();
 
-		for (size_t j = 0; j < entity->GetMesh()->GetIndexCount(); j += 3)
-		{
-			if (TriangleTests::Intersects(rayPosLocal, rayDirLocal, XMLoadFloat3(&verts[faces[j]].Position), XMLoadFloat3(&verts[faces[j + 1]].Position), XMLoadFloat3(&verts[faces[j + 2]].Position), distance))
-				if (distance < filterDistance)
-				{
-					filterDistance = distance;
-					nearestEntity = entity;
-					vanish_pos = nearestEntity->getPos();
-					remove_pos = temp_pos;
-					//dir = XMVectorSet(entity->phy->getTranslation().x, entity->phy->getTranslation().y - 1, entity->phy->getTranslation().z + 2, 0);
-					//dir = XMVectorSet(0,0,1, 0);
-					ent_clicked = true;
-					entity->isdecal = true;
-				}
-		}
-	}
+	//	for (size_t j = 0; j < entity->GetMesh()->GetIndexCount(); j += 3)
+	//	{
+	//		if (TriangleTests::Intersects(rayPosLocal, rayDirLocal, XMLoadFloat3(&verts[faces[j]].Position), XMLoadFloat3(&verts[faces[j + 1]].Position), XMLoadFloat3(&verts[faces[j + 2]].Position), distance))
+	//			if (distance < filterDistance)
+	//			{
+	//				filterDistance = distance;
+	//				nearestEntity = entity;
+	//				vanish_pos = nearestEntity->getPos();
+	//				remove_pos = temp_pos;
+	//				//dir = XMVectorSet(entity->phy->getTranslation().x, entity->phy->getTranslation().y - 1, entity->phy->getTranslation().z + 2, 0);
+	//				//dir = XMVectorSet(0,0,1, 0);
+	//				ent_clicked = true;
+	//				entity->isdecal = true;
+	//			}
+	//	}
+	//}
 
 	if (ent_clicked && nearestEntity->GetMesh()->GetName() == Random_Mesh)
 	{
@@ -1392,8 +1476,23 @@ void Game::OnMouseUp(WPARAM buttonState, int x, int y)
 // --------------------------------------------------------
 void Game::OnMouseMove(WPARAM buttonState, int x, int y)
 {
-	// Add any custom code here...
-	// calling camera movement methods here
+	camFrustum;
+	c->GetFrustum().Transform(camFrustum, XMMatrixInverse(NULL, XMMatrixTranspose(XMLoadFloat4x4(&c->GetViewMatrix()))));
+	if (!isnan(camFrustum.Origin.x))
+	{
+		mouseMove = true;
+	}
+	proj;
+	XMStoreFloat4x4(&proj, XMMatrixTranspose(XMLoadFloat4x4(&c->GetProjectionMatrix())));
+
+	tempRayDir;
+	tempRayDir.x = (((2 * (float)x) / width) - 1) / proj._11;
+	tempRayDir.y = -(((2 * (float)y) / height) - 1) / proj._22;
+	tempRayDir.z = 1.0f;
+
+	view = XMMatrixInverse(NULL, XMMatrixTranspose(XMLoadFloat4x4(&c->GetViewMatrix())));
+	rayDir = XMVector3TransformNormal(XMVector3Normalize(XMLoadFloat3(&tempRayDir)), view);
+	rayPos = c->GetCameraPosition(); //Was Load Float 3. If it breaks everything BLAME DARREN
 
 	if (buttonState & 0x0001)
 	{
