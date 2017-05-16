@@ -83,6 +83,8 @@ Game::~Game()
 	}
 	delete Ground;
 	delete Ground_Mesh;
+	delete LightSource;
+	delete LightSource_Mesh;
 	//delete Entity_obj;
 	delete c;
 	//delete ma_metal;
@@ -91,6 +93,10 @@ Game::~Game()
 	delete pixelShader;
 	delete skyVS;
 	delete skyPS;
+	delete ppVS;
+	delete ppPS;
+	delete ebVS;
+	delete ebPS;
 
 	//Particles
 	delete particleVS;
@@ -152,6 +158,8 @@ Game::~Game()
 	delete VS_Outline;
 	delete PS_Outline;
 
+	delete spriteBatch;
+
 	
 }
 
@@ -192,15 +200,110 @@ void Game::Init()
 	CreateWICTextureFromFile(device, context, L"Assets/Textures/03.jpg", 0, &srv1);
 	CreateWICTextureFromFile(device, context, L"Assets/Textures/rockNormals.jpg", 0, &normalMapSRV);
 	//CreateWICTextureFromFile(device, context, L"Assets/Texture/shadow_cube.png",0,&SRV_Shadow);
-	CreateDDSTextureFromFile(device, L"Assets/Textures//SunnyCubeMap.dds", 0, &skySRV);
+	CreateDDSTextureFromFile(device, L"Assets/Textures//UffiziGallery.dds", 0, &skySRV);
 	//CreateDDSTextureFromFile(device, L"Assets/Textures//0.dds", 0, &skySRV);
+	CreateWICTextureFromFile(device, context, L"Assets/Textures/light.jpg", 0, &srvlight);
+
+	spriteBatch = new SpriteBatch(context); 
+
+	// Create post process resources -----------------------------------------
+	D3D11_TEXTURE2D_DESC pptextureDesc = {};
+	pptextureDesc.Width = width;
+	pptextureDesc.Height = height;
+	pptextureDesc.ArraySize = 1;
+	pptextureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+	pptextureDesc.CPUAccessFlags = 0;
+	pptextureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	pptextureDesc.MipLevels = 1;
+	pptextureDesc.MiscFlags = 0;
+	pptextureDesc.SampleDesc.Count = 1;
+	pptextureDesc.SampleDesc.Quality = 0;
+	pptextureDesc.Usage = D3D11_USAGE_DEFAULT;
+
+	ID3D11Texture2D* ppTexture;
+	device->CreateTexture2D(&pptextureDesc, 0, &ppTexture);
+
+	// Create the Render Target View
+	D3D11_RENDER_TARGET_VIEW_DESC pprtvDesc = {};
+	pprtvDesc.Format = pptextureDesc.Format;
+	pprtvDesc.Texture2D.MipSlice = 0;
+	pprtvDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+
+	device->CreateRenderTargetView(ppTexture, &pprtvDesc, &ppRTV);
+
+	// Create the Shader Resource View
+	D3D11_SHADER_RESOURCE_VIEW_DESC ppsrvDesc = {};
+	ppsrvDesc.Format = pptextureDesc.Format;
+	ppsrvDesc.Texture2D.MipLevels = 1;
+	ppsrvDesc.Texture2D.MostDetailedMip = 0;
+	ppsrvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+
+	device->CreateShaderResourceView(ppTexture, &ppsrvDesc, &ppSRV);
+
+	// We don't need the texture reference itself no mo'
+	ppTexture->Release();
+
+
+
+
+	ID3D11Texture2D* ppTexture0;
+	device->CreateTexture2D(&pptextureDesc, 0, &ppTexture0);
+
+
+	// Create the Render Target View
+	D3D11_RENDER_TARGET_VIEW_DESC pprtvDesc0 = {};
+	pprtvDesc0.Format = pptextureDesc.Format;
+	pprtvDesc0.Texture2D.MipSlice = 0;
+	pprtvDesc0.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+
+	device->CreateRenderTargetView(ppTexture0, &pprtvDesc0, &ppbRTV);
+
+	// Create the Shader Resource View
+	D3D11_SHADER_RESOURCE_VIEW_DESC ppsrvDesc0 = {};
+	ppsrvDesc0.Format = pptextureDesc.Format;
+	ppsrvDesc0.Texture2D.MipLevels = 1;
+	ppsrvDesc0.Texture2D.MostDetailedMip = 0;
+	ppsrvDesc0.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+
+	device->CreateShaderResourceView(ppTexture0, &ppsrvDesc0, &ppbSRV);
+
+	// We don't need the texture reference itself no mo'
+	ppTexture0->Release();
+
+
+	ID3D11Texture2D* ppTexture1;
+	device->CreateTexture2D(&pptextureDesc, 0, &ppTexture1);
+
+
+	// Create the Render Target View
+	D3D11_RENDER_TARGET_VIEW_DESC pprtvDesc1 = {};
+	pprtvDesc1.Format = pptextureDesc.Format;
+	pprtvDesc1.Texture2D.MipSlice = 0;
+	pprtvDesc1.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+
+	device->CreateRenderTargetView(ppTexture1, &pprtvDesc1, &ppbloomRTV);
+
+	// Create the Shader Resource View
+	D3D11_SHADER_RESOURCE_VIEW_DESC ppsrvDesc1 = {};
+	ppsrvDesc1.Format = pptextureDesc.Format;
+	ppsrvDesc1.Texture2D.MipLevels = 1;
+	ppsrvDesc1.Texture2D.MostDetailedMip = 0;
+	ppsrvDesc1.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+
+	device->CreateShaderResourceView(ppTexture1, &ppsrvDesc1, &ppbloomSRV);
+
+	// We don't need the texture reference itself no mo'
+	ppTexture1->Release();
+
+
+
+
 
 	//Particles
 	DirectX::CreateWICTextureFromFile(device, context, L"Assets/Textures/Particles/circleParticle.jpg", 0, &particleTexture);
 	DirectX::CreateWICTextureFromFile(device, context, L"Assets/Textures/Particles/particle.jpg", 0, &particleTexture1);
 	DirectX::CreateWICTextureFromFile(device, context, L"Assets/Textures/Particles/fogParticle.jpg", 0, &fogParticleTexture);
 	
-
 	// A depth state for the particles
 	D3D11_DEPTH_STENCIL_DESC dsDesc2 = {};
 	dsDesc2.DepthEnable = true;
@@ -471,16 +574,20 @@ void Game::Init()
 	// Essentially: "What kind of shape should the GPU draw with our data?"
 	context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	
+	//light from front
 	directionalLight.AmbientColor = XMFLOAT4(0.1, 0.1, 0.1, 0.1);
-	directionalLight.DiffuseColor = XMFLOAT4(0, 0, 1, 1);  // blue
+	directionalLight.DiffuseColor = XMFLOAT4(1, 1, 0, 1);  
 	directionalLight.Direction = XMFLOAT3(0,0,1);
 	
 
+	//light from top
 	directionalLight2.AmbientColor = XMFLOAT4(0.1, 0.1, 0.1, 0.1);
-	directionalLight2.DiffuseColor = XMFLOAT4(1, 1, 0, 1);  // yellow
+	directionalLight2.DiffuseColor = XMFLOAT4(1, 1, 1, 1);  
 	//directionalLight2.DiffuseColor = XMFLOAT4(0.8f, 0.8f, 0.8f, 1);
 	directionalLight2.Direction = XMFLOAT3(0, -1, 0);
 	//directionalLight2.Direction = XMFLOAT3(1, 0, 0);
+
+
 
 	pointLight.Color = XMFLOAT4(0, 1, 0, 1);
 	pointLight.Position = XMFLOAT3(0, 2, 0);
@@ -574,6 +681,23 @@ void Game::LoadShaders()
 	PS_Outline = new SimplePixelShader(device, context);
 	if (!PS_Outline->LoadShaderFile(L"Debug/PS_Outline.cso"))
 		PS_Outline->LoadShaderFile(L"PS_Outline.cso");
+
+
+	ebVS = new SimpleVertexShader(device, context);
+	if (!ebVS->LoadShaderFile(L"Debug/ExtractBrightVS.cso"))
+		ebVS->LoadShaderFile(L"ExtractBrightVS.cso");
+
+	ebPS = new SimplePixelShader(device, context);
+	if (!ebPS->LoadShaderFile(L"Debug/ExtractBrightPS.cso"))
+		ebPS->LoadShaderFile(L"ExtractBrightPS.cso");
+
+	ppVS = new SimpleVertexShader(device, context);
+	if (!ppVS->LoadShaderFile(L"Debug/PostProcessVS.cso"))
+		ppVS->LoadShaderFile(L"PostProcessVS.cso");
+
+	ppPS = new SimplePixelShader(device, context);
+	if (!ppPS->LoadShaderFile(L"Debug/PostProcessPS.cso"))
+		ppPS->LoadShaderFile(L"PostProcessPS.cso");
 	
 }
 
@@ -703,6 +827,7 @@ void Game::CreateMeshes()
 	mesh_names.push_back("torus");
 	Ground_Mesh = new Mesh("Assets/Models/plane.obj", device, "plane");
 	mesh_names.push_back("plane");
+	LightSource_Mesh = new Mesh("Assets/Models/sphere.obj", device, "sphere");
 
 }
 
@@ -730,6 +855,7 @@ void Game::CreateEntities()
 	E.push_back(new Entity(mesh_list[4], "11", pp[10]));
 	E.push_back(new Entity(mesh_list[0], "12", pp[11]));
 	Ground = new Entity(Ground_Mesh, "Ground", pp[12]);
+	LightSource = new Entity(LightSource_Mesh, "Light", pp[12]);
 
 	for (int i = 0; i < E.size(); i++)
 	{
@@ -861,6 +987,10 @@ void Game::Update(float deltaTime, float totalTime)
 	}
 
 	Ground->SetTrans(XMFLOAT3(0, -2, 1));
+    
+	//LightSource->SetRot(XMFLOAT3(0, totalTime, 0));
+	LightSource->SetTrans(XMFLOAT3(3.3, 1.9, 1));
+	
 
 	
 
@@ -1010,8 +1140,8 @@ void Game::Draw(float deltaTime, float totalTime)
 
 		// load material once
 
-		//UINT stride = sizeof(Vertex);
-		//UINT offset = 0;
+
+
 
 		// ---Third Assignment---
 		// draw the entity
@@ -1097,7 +1227,7 @@ void Game::Draw(float deltaTime, float totalTime)
 		ID3D11Buffer *  vb = Ground->GetMesh()->GetVertexBuffer();
 		ID3D11Buffer *  ib = Ground->GetMesh()->GetIndexBuffer();
 
-		UINT stride = sizeof(Vertex);
+	    UINT stride = sizeof(Vertex);
 		UINT offset = 0;
 
 		context->IASetVertexBuffers(0, 1, &vb, &stride, &offset);
@@ -1136,7 +1266,7 @@ void Game::Draw(float deltaTime, float totalTime)
 		pixelShader->SetSamplerState("Sampler", SampleState);
 		pixelShader->SetSamplerState("ShadowSampler", Sampler_Shadow);
 
-		pixelShader->SetShaderResourceView("Texture", srv);
+		pixelShader->SetShaderResourceView("Texture", SRV_Metal);
 		pixelShader->SetShaderResourceView("NormalMap", normalMapSRV);
 		pixelShader->SetShaderResourceView("ShadowMap", SRV_Shadow);
 		//pixelShader->SetShaderResourceView("diffuseTexture", srv);
@@ -1162,6 +1292,7 @@ void Game::Draw(float deltaTime, float totalTime)
 		context->OMSetDepthStencilState(0, 0);
 		pixelShader->SetShaderResourceView("ShadowMap", 0);
 
+
 		// Draw the sky ------------------------
 
 		vb = mesh_list[1]->GetVertexBuffer();
@@ -1185,10 +1316,161 @@ void Game::Draw(float deltaTime, float totalTime)
 		context->OMSetDepthStencilState(dsSky, 0);
 		context->DrawIndexed(mesh_list[1]->GetIndexCount(), 0, 0);
 
+
+
+
+
+		UINT stride0 = sizeof(Vertex);
+		UINT offset0 = 0;
+
 		context->RSSetState(0);
 		context->OMSetDepthStencilState(0, 0);
+
+
+		//post process
+		context->ClearRenderTargetView(ppRTV, color);
+		context->OMSetRenderTargets(1, &ppRTV, depthStencilView);
+
+		RECT crateRect = { 0, 0, width, height };
+
+		spriteBatch->Begin();
+
+		spriteBatch->Draw(srvlight, crateRect);
+
+		spriteBatch->End();
+
+		context->RSSetState(0);
+		context->OMSetDepthStencilState(0, 0);
+
+		context->ClearRenderTargetView(ppbRTV, color);
+		context->OMSetRenderTargets(1, &ppbRTV, depthStencilView);
+
+		ebVS->SetShader();
+
+		ebPS->SetFloat("BloomTreshold", 0.45f);
+		ebPS->SetShaderResourceView("ColorTexture", ppSRV);
+		ebPS->SetSamplerState("Sampler", SampleState);
+		ebPS->CopyAllBufferData();
+		ebPS->SetShader();
+
+
+		ID3D11Buffer* nothing = 0;
+		context->IASetVertexBuffers(0, 1, &nothing, &stride0, &offset0);
+		context->IASetIndexBuffer(0, DXGI_FORMAT_R32_UINT, 0);
+
+		// Actually draw exactly 3 vertices
+		context->Draw(3, 0);
+		// Unbind the post process texture from input
+		ebPS->SetShaderResourceView("ColorTexture", 0);
+
+
+		context->RSSetState(0);
+		context->OMSetDepthStencilState(0, 0);
+
+		context->ClearRenderTargetView(ppbloomRTV, color);
+		context->ClearDepthStencilView(
+			depthStencilView,
+			D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL,
+			1.0f,
+			0);
+		context->OMSetRenderTargets(1, &ppbloomRTV, depthStencilView);
+
+		//context->OMSetRenderTargets(1, &backBufferRTV, 0);
+
+		ppVS->SetShader();
+
+		ppPS->SetInt("blurAmount", 5);
+		ppPS->SetFloat("pixelWidth", 1.0f / width);
+		ppPS->SetFloat("pixelHeight", 1.0f / height);
+		ppPS->SetShaderResourceView("Pixels", ppbSRV);
+		ppPS->SetShaderResourceView("ColorTexture", srvlight);
+		ppPS->SetSamplerState("Sampler", SampleState);
+		ppPS->CopyAllBufferData();
+		ppPS->SetShader();
+
+		ID3D11Buffer* nothing0 = 0;
+		context->IASetVertexBuffers(0, 1, &nothing0, &stride0, &offset0);
+		context->IASetIndexBuffer(0, DXGI_FORMAT_R32_UINT, 0);
+
+		// Actually draw exactly 3 vertices
+		context->Draw(3, 0);
+
+		// Unbind the post process texture from input
+		ppPS->SetShaderResourceView("Pixels", 0);
+		ppPS->SetShaderResourceView("ColorTexture", 0);
+
 		
 		
+		
+		context->RSSetState(0);
+		context->OMSetDepthStencilState(0, 0);
+
+		context->OMSetRenderTargets(1, &backBufferRTV, 0);
+
+		crateRect = { 1000,50 , 1296, 100 };
+
+		spriteBatch->Begin();
+
+		spriteBatch->Draw(ppbloomSRV, crateRect);
+
+		spriteBatch->End();
+
+	/*
+		UINT stride1 = sizeof(Vertex);
+		UINT offset1 = 0;
+
+
+		ID3D11Buffer *  vb0 = LightSource->GetMesh()->GetVertexBuffer();
+		ID3D11Buffer *  ib0 = LightSource->GetMesh()->GetIndexBuffer();
+
+		context->IASetVertexBuffers(0, 1, &vb0, &stride1, &offset1);
+		context->IASetIndexBuffer(ib0, DXGI_FORMAT_R32_UINT, 0);
+
+		vertexShader->SetMatrix4x4("world", LightSource->GetMatrix());
+		vertexShader->SetMatrix4x4("view", c->GetViewMatrix());
+		vertexShader->SetMatrix4x4("projection", c->GetProjectionMatrix());
+
+		vertexShader->SetMatrix4x4("shadowView", shadowViewMatrix);
+		vertexShader->SetMatrix4x4("shadowProjection", shadowProjectionMatrix);
+
+		vertexShader->SetMatrix4x4("view2", viewMatrix2);
+		vertexShader->SetMatrix4x4("projection2", projectionMatrix2);
+		vertexShader->CopyAllBufferData();
+		vertexShader->SetShader();
+		//VS_Shadow->deviceContext->PSSetShader(0, 0, 0);
+
+		//pixelShader->SetData("directionalLight",&directionalLight,sizeof(DirectionalLight));
+		//pixelShader->SetData("directionalLight2",&directionalLight2,sizeof(DirectionalLight));
+		//pixelShader->SetData("pointLight",&pointLight,sizeof(PointLight));
+
+		pixelShader->SetSamplerState("Sampler", SampleState);
+		pixelShader->SetSamplerState("ShadowSampler", Sampler_Shadow);
+
+		pixelShader->SetShaderResourceView("Texture", ppbloomSRV);
+		pixelShader->SetShaderResourceView("NormalMap", normalMapSRV);
+		pixelShader->SetShaderResourceView("ShadowMap", SRV_Shadow);
+		//pixelShader->SetShaderResourceView("diffuseTexture", srv);
+		pixelShader->SetShaderResourceView("projectionTexture", srv1);
+
+		pixelShader->SetShaderResourceView("Sky", skySRV);
+
+
+		//pixelShader->SetData("pl", &pl, sizeof(PointLight));
+
+
+
+		pixelShader->CopyAllBufferData();
+		pixelShader->SetShader();
+
+		context->DrawIndexed(
+			LightSource->GetMesh()->GetIndexCount(),     // The number of indices to use (we could draw a subset if we wanted)
+			0,     // Offset to the first index we want to use
+			0);    // Offset to add to each index when looking up vertices
+	
+	*/
+		context->RSSetState(0);
+		context->OMSetDepthStencilState(0, 0);
+
 		
 		swprintf_s(showScore, L"%d", score);
 

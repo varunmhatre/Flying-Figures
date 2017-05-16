@@ -97,6 +97,9 @@ private:
 	Entity * Ground;
 	Mesh * Ground_Mesh;
 
+	Entity * LightSource;
+	Mesh * LightSource_Mesh;
+
 	//Entity * E[12]; // an array of 12 entities
 	//Entity * Entity_obj;
 
@@ -119,8 +122,23 @@ private:
 
 	ID3D11ShaderResourceView* srv;
 	ID3D11ShaderResourceView* srv1;
+	ID3D11ShaderResourceView* srvlight;
+
 
 	ID3D11ShaderResourceView* normalMapSRV;
+
+	ID3D11RenderTargetView* ppRTV;		// Allows us to render to a texture
+	ID3D11ShaderResourceView* ppSRV;	// Allows us to sample from the same texture
+	ID3D11RenderTargetView* ppbRTV;		// Allows us to render to a texture
+	ID3D11ShaderResourceView* ppbSRV;	// Allows us to sample from the same texture
+	ID3D11RenderTargetView* ppbloomRTV;		// Allows us to render to a texture
+	ID3D11ShaderResourceView* ppbloomSRV;
+
+	SimpleVertexShader* ppVS;
+	SimplePixelShader* ppPS;
+	SimpleVertexShader* ebVS;
+	SimplePixelShader* ebPS;
+
 	// --------------------
 
 	// ---for shadow mapping---
@@ -160,6 +178,10 @@ private:
 
 	XMVECTOR dir;
 	//XMVECTOR pos;
+
+
+	SpriteBatch *spriteBatch; // post process background
+
 
 	//for skybox
 	ID3D11ShaderResourceView* skySRV;
